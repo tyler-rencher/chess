@@ -1,19 +1,14 @@
 package chess;
 
-import chess.ChessBoard;
-import chess.ChessMove;
-import chess.ChessPosition;
-
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 public class KingMoveCalculator {
     public KingMoveCalculator(){
 
     }
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        HashSet<ChessMove> moves = new HashSet<ChessMove>();
+        HashSet<ChessMove> moves = new HashSet<>();
         ChessPiece currentKing = board.getPiece(myPosition);
         for (int i = myPosition.getRow() - 1; i < myPosition.getRow() + 2; i++){
             if((i < 1) || (i > 8)){continue;}

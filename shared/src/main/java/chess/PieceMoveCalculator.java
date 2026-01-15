@@ -1,6 +1,5 @@
 package chess;
 
-import chess.KingMoveCalculator;
 import java.util.Collection;
 import java.util.List;
 
