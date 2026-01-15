@@ -16,6 +16,8 @@ public class PieceMoveCalculator {
             return new BishopMoveCalculator().pieceMoves(board,myPosition);
         } else if(piece.getPieceType() == ChessPiece.PieceType.ROOK){
             return new RookMoveCalculator().pieceMoves(board,myPosition);
+        } else if(piece.getPieceType() == ChessPiece.PieceType.QUEEN){
+            return new QueenMoveCalculator().pieceMoves(board,myPosition);
         }
         return List.of();
     }
