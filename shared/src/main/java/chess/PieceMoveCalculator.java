@@ -20,6 +20,8 @@ public class PieceMoveCalculator {
             return new QueenMoveCalculator().pieceMoves(board,myPosition);
         } else if(piece.getPieceType() == ChessPiece.PieceType.KNIGHT){
             return new KnightMoveCalculator().pieceMoves(board,myPosition);
+        } else if(piece.getPieceType() == ChessPiece.PieceType.PAWN){
+            return new PawnMoveCalculator().pieceMoves(board,myPosition);
         }
         return List.of();
     }
