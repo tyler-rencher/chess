@@ -70,4 +70,27 @@ public class ChessPiece {
     public int hashCode() {
         return Objects.hash(pieceColor, type);
     }
+
+    @Override
+    public String toString() {
+        String pieceString = " ";
+        if(type == PieceType.BISHOP){
+            pieceString = "B";
+        } else if(type == PieceType.PAWN){
+            pieceString = "P";
+        } else if(type == PieceType.KING){
+            pieceString = "K";
+        } else if(type == PieceType.QUEEN){
+            pieceString = "Q";
+        } else if(type == PieceType.ROOK){
+            pieceString = "R";
+        } else if(type == PieceType.KNIGHT){
+            pieceString = "N";
+        }
+        if(pieceColor == ChessGame.TeamColor.BLACK){
+            pieceString = pieceString.toLowerCase();
+        }
+
+        return pieceString;
+    }
 }
