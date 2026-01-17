@@ -41,6 +41,13 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
+        squares = new ChessPiece[8][8];
+        for(int i = 1; i < 9; i++){
+            addPiece(new ChessPosition(1,i),new ChessPiece(ChessGame.TeamColor.WHITE,ChessPiece.PieceType.PAWN));
+        }
+        for(int i = 1; i < 9; i++){
+            addPiece(new ChessPosition(7,i),new ChessPiece(ChessGame.TeamColor.BLACK,ChessPiece.PieceType.PAWN));
+        }
         throw new RuntimeException("Not implemented");
     }
 
