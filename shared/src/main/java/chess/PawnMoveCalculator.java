@@ -30,25 +30,22 @@ public class PawnMoveCalculator extends PieceMoveCalculator{
         }
 
 
-        for(int i = 0; i < possible.length; i++){
-            ChessPosition testPosition = new ChessPosition(myPosition.getRow() + possible[i][0],myPosition.getColumn()+possible[i][1]);
-            if(isValidMove(board,testPosition,currentPawn.getTeamColor())){
-                if((possible[i][1] == 0) && (board.getPiece(testPosition) != null)){ //checks if a move forward and a capture at the same time
+        for (int[] ints : possible) {
+            ChessPosition testPosition = new ChessPosition(myPosition.getRow() + ints[0], myPosition.getColumn() + ints[1]);
+            if (isValidMove(board, testPosition, currentPawn.getTeamColor())) {
+                if ((ints[1] == 0) && (board.getPiece(testPosition) != null)) { //checks if a move forward and a capture at the same time
                     canGoTwo = false;
-                    continue;
-                } else if((possible[i][1] != 0) && (board.getPiece(testPosition) == null)){
-                    continue;
-                } else if((!canGoTwo) && ((possible[i][0] == -2) || (possible[i][0] == 2))){
-                    continue;
-                } else{
-                    if(testPosition.getRow() == promotionSquare){
-                        moves.addAll(addPromotionMoves(myPosition,testPosition));
-                    } else{
-                        moves.add(new ChessMove(myPosition,testPosition,null));
+                } else if ((ints[1] != 0) && (board.getPiece(testPosition) == null)) {
+                } else if ((!canGoTwo) && ((ints[0] == -2) || (ints[0] == 2))) {
+                } else {
+                    if (testPosition.getRow() == promotionSquare) {
+                        moves.addAll(addPromotionMoves(myPosition, testPosition));
+                    } else {
+                        moves.add(new ChessMove(myPosition, testPosition, null));
                     }
                 }
-            } else{
-                if((possible[i][1] == 0) && (board.getPiece(testPosition) != null)){ //checks if a move forward and a capture at the same time
+            } else {
+                if ((ints[1] == 0) && (board.getPiece(testPosition) != null)) { //checks if a move forward and a capture at the same time
                     canGoTwo = false;
                     continue;
                 }
