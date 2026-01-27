@@ -14,6 +14,7 @@ public class ChessGame {
     private TeamColor teamColor;
     public ChessGame() {
         this.board = new ChessBoard();
+        board.resetBoard();
         teamColor = TeamColor.WHITE;
     }
 
@@ -94,7 +95,18 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = getKingPosition(teamColor);
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                ChessPosition testPosition = new ChessPosition(i+1,j+1);
+                if((board.getPiece(testPosition) != null) && (board.getPiece(testPosition).getTeamColor() != teamColor)){
+                    if(validMoves(testPosition).contains(kingPosition)){ //FIXME need to check the endPosition if it has the King position or not
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -136,12 +148,24 @@ public class ChessGame {
         return board;
     }
 
-    void changeTeamColorTurn(){
+    private void changeTeamColorTurn(){
         if(teamColor == TeamColor.WHITE){
             teamColor = TeamColor.BLACK;
         } else{
             teamColor = TeamColor.WHITE;
         }
+    }
+
+    private ChessPosition getKingPosition(TeamColor color){
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                ChessPosition testPosition = new ChessPosition(i+1,j+1);
+                if(board.getPiece(testPosition).equals(new ChessPiece(color, ChessPiece.PieceType.KING))){
+                    return testPosition;
+                }
+            }
+        }
+        return null;
     }
 
 
