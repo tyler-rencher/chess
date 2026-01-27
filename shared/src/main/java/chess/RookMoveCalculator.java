@@ -9,47 +9,18 @@ public class RookMoveCalculator extends PieceMoveCalculator {
     }
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet<ChessMove> moves = new HashSet<>();
-        ChessPiece currentRook = board.getPiece(myPosition);
-        //up
-        ChessPosition testPosition = new ChessPosition(myPosition.getRow()+1,myPosition.getColumn());
-        while(isValidMove(board,testPosition,currentRook.getTeamColor())){
-            moves.add(new ChessMove(myPosition,testPosition,null));
-            if(board.getPiece(testPosition) != null){
-                break;
+        ChessPiece currentPiece = board.getPiece(myPosition);
+        int [][] possibleMoves = {{1,0},{0,1},{-1,0},{0,-1}};
+        for (int[] possibleMove : possibleMoves) {
+            ChessPosition testPosition = new ChessPosition(myPosition.getRow() + possibleMove[0], myPosition.getColumn() + possibleMove[1]);
+            while (isValidMove(board, testPosition, currentPiece.getTeamColor())) {
+                moves.add(new ChessMove(myPosition, testPosition, null));
+                if (board.getPiece(testPosition) != null) {
+                    break;
+                }
+                testPosition = new ChessPosition(testPosition.getRow() + possibleMove[0], testPosition.getColumn() + possibleMove[1]);
             }
-            testPosition = new ChessPosition(testPosition.getRow()+1,testPosition.getColumn());
         }
-
-        //down
-        testPosition = new ChessPosition(myPosition.getRow()-1,myPosition.getColumn());
-        while(isValidMove(board,testPosition,currentRook.getTeamColor())){
-            moves.add(new ChessMove(myPosition,testPosition,null));
-            if(board.getPiece(testPosition) != null){
-                break;
-            }
-            testPosition = new ChessPosition(testPosition.getRow()-1,testPosition.getColumn());
-        }
-
-        //left
-        testPosition = new ChessPosition(myPosition.getRow(),myPosition.getColumn()-1);
-        while(isValidMove(board,testPosition,currentRook.getTeamColor())){
-            moves.add(new ChessMove(myPosition,testPosition,null));
-            if(board.getPiece(testPosition) != null){
-                break;
-            }
-            testPosition = new ChessPosition(testPosition.getRow(),testPosition.getColumn()-1);
-        }
-
-        //right
-        testPosition = new ChessPosition(myPosition.getRow(),myPosition.getColumn()+1);
-        while(isValidMove(board,testPosition,currentRook.getTeamColor())){
-            moves.add(new ChessMove(myPosition,testPosition,null));
-            if(board.getPiece(testPosition) != null){
-                break;
-            }
-            testPosition = new ChessPosition(testPosition.getRow(),testPosition.getColumn()+1);
-        }
-
         return moves;
     }
 }
