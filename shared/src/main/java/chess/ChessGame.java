@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -9,16 +10,18 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
-
+    private ChessBoard board;
+    private TeamColor teamColor;
     public ChessGame() {
-
+        this.board = new ChessBoard();
+        teamColor = TeamColor.WHITE;
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return teamColor;
     }
 
     /**
@@ -27,7 +30,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        teamColor = team;
     }
 
     /**
@@ -46,7 +49,9 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        HashSet<ChessMove> moves = new HashSet<>(board.getPiece(startPosition).pieceMoves(board, startPosition));
+        //FIXME remove invalid moves
+        return moves;
     }
 
     /**
@@ -56,7 +61,30 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        //throw new RuntimeException("Not implemented");
+        try {
+            ChessPosition startPosition = move.getStartPosition();
+            ChessPosition endPosition = move.getEndPosition();
+            ChessPiece currentPiece = board.getPiece(startPosition);
+            if(currentPiece == null){
+                throw new InvalidMoveException("Piece null");
+            } else if(currentPiece.getTeamColor() != teamColor){
+                throw new InvalidMoveException("Not Your Turn");
+            }
+            if(validMoves(startPosition).contains(move)){
+                if(move.getPromotionPiece() == null){
+                    board.addPiece(endPosition,currentPiece);
+                } else{
+                    board.addPiece(endPosition,new ChessPiece(currentPiece.getTeamColor(),move.getPromotionPiece()));
+                }
+                board.addPiece(startPosition,null);
+                changeTeamColorTurn();
+            } else{
+                throw new InvalidMoveException("Move not Valid");
+            }
+        } catch (InvalidMoveException e) {
+            throw new InvalidMoveException(e.toString());
+        }
     }
 
     /**
@@ -96,7 +124,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        this.board = board;
     }
 
     /**
@@ -105,6 +133,25 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return board;
+    }
+
+    void changeTeamColorTurn(){
+        if(teamColor == TeamColor.WHITE){
+            teamColor = TeamColor.BLACK;
+        } else{
+            teamColor = TeamColor.WHITE;
+        }
+    }
+
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
     }
 }
