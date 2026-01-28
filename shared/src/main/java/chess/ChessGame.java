@@ -2,6 +2,7 @@ package chess;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -62,7 +63,6 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        //throw new RuntimeException("Not implemented");
         try {
             ChessPosition startPosition = move.getStartPosition();
             ChessPosition endPosition = move.getEndPosition();
@@ -71,6 +71,8 @@ public class ChessGame {
                 throw new InvalidMoveException("Piece null");
             } else if(currentPiece.getTeamColor() != teamColor){
                 throw new InvalidMoveException("Not Your Turn");
+            } else if(isInCheck(teamColor)){
+                throw new InvalidMoveException("Your in Check!");
             }
             if(validMoves(startPosition).contains(move)){
                 if(move.getPromotionPiece() == null){
@@ -100,7 +102,7 @@ public class ChessGame {
             for(int j = 0; j < 8; j++){
                 ChessPosition testPosition = new ChessPosition(i+1,j+1);
                 if((board.getPiece(testPosition) != null) && (board.getPiece(testPosition).getTeamColor() != teamColor)){
-                    if(validMoves(testPosition).contains(kingPosition)){ //FIXME need to check the endPosition if it has the King position or not
+                    if(getEndPositions(testPosition).contains(kingPosition)){
                         return true;
                     }
                 }
@@ -160,7 +162,7 @@ public class ChessGame {
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 ChessPosition testPosition = new ChessPosition(i+1,j+1);
-                if(board.getPiece(testPosition).equals(new ChessPiece(color, ChessPiece.PieceType.KING))){
+                if((board.getPiece(testPosition) != null) && (board.getPiece(testPosition).equals(new ChessPiece(color, ChessPiece.PieceType.KING)))){
                     return testPosition;
                 }
             }
@@ -168,14 +170,26 @@ public class ChessGame {
         return null;
     }
 
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
+    private Collection<ChessPosition> getEndPositions(ChessPosition startPosition){
+        HashSet<ChessMove> moves = new HashSet<>(validMoves(startPosition));
+        HashSet<ChessPosition> endPositions = new HashSet<>();
+        for(ChessMove move : moves){
+            endPositions.add(move.getEndPosition());
+        }
+        return endPositions;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return Objects.equals(board, chessGame.board) && teamColor == chessGame.teamColor;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(board, teamColor);
     }
 }
