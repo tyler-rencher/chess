@@ -76,25 +76,19 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         try {
             ChessPosition startPosition = move.getStartPosition();
-            ChessPosition endPosition = move.getEndPosition();
             ChessPiece currentPiece = board.getPiece(startPosition);
             if(currentPiece == null){
                 throw new InvalidMoveException("Piece null");
             } else if(currentPiece.getTeamColor() != teamColor){
-                throw new InvalidMoveException("Not Your Turn");
+                throw new InvalidMoveException(String.format("Not Your Turn %s", currentPiece.getTeamColor()));
             } else if(isInCheck(teamColor)){
-                throw new InvalidMoveException("Your in Check!");
+                throw new InvalidMoveException(String.format("You're in Check %s!", teamColor));
             }
             if(validMoves(startPosition).contains(move)){
-                if(move.getPromotionPiece() == null){
-                    board.addPiece(endPosition,currentPiece);
-                } else{
-                    board.addPiece(endPosition,new ChessPiece(currentPiece.getTeamColor(),move.getPromotionPiece()));
-                }
-                board.addPiece(startPosition,null);
+                addAndRemovePiece(move);
                 changeTeamColorTurn();
             } else{
-                throw new InvalidMoveException("Move not Valid");
+                throw new InvalidMoveException(String.format("Invalid Move: %s", move));
             }
         } catch (InvalidMoveException e) {
             throw new InvalidMoveException(e.toString());
