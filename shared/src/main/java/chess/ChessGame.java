@@ -53,7 +53,18 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         HashSet<ChessMove> moves = new HashSet<>(board.getPiece(startPosition).pieceMoves(board, startPosition));
         //FIXME remove invalid moves
-        return moves;
+        HashSet<ChessMove> validatedMoves = new HashSet<>();
+        ChessPiece currentPiece = board.getPiece(startPosition);
+        ChessBoard clone = new ChessBoard(board);
+        for(ChessMove move: moves){
+            addAndRemovePiece(move);
+            if(!isInCheck(currentPiece.getTeamColor())){
+                validatedMoves.add(move);
+            }
+            board = new ChessBoard(clone);
+        }
+
+        return validatedMoves;
     }
 
     /**
@@ -88,6 +99,21 @@ public class ChessGame {
         } catch (InvalidMoveException e) {
             throw new InvalidMoveException(e.toString());
         }
+    }
+
+    private void addAndRemovePiece(ChessMove move){
+        ChessPosition endPosition = move.getEndPosition();
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPiece currentPiece = board.getPiece(startPosition);
+        if(currentPiece == null){
+            return;
+        }
+        if(move.getPromotionPiece() == null){
+            board.addPiece(endPosition,currentPiece);
+        } else{
+            board.addPiece(endPosition,new ChessPiece(currentPiece.getTeamColor(),move.getPromotionPiece()));
+        }
+        board.addPiece(startPosition,null);
     }
 
     /**
@@ -171,7 +197,7 @@ public class ChessGame {
     }
 
     private Collection<ChessPosition> getEndPositions(ChessPosition startPosition){
-        HashSet<ChessMove> moves = new HashSet<>(validMoves(startPosition));
+        HashSet<ChessMove> moves = new HashSet<>(board.getPiece(startPosition).pieceMoves(board,startPosition));
         HashSet<ChessPosition> endPositions = new HashSet<>();
         for(ChessMove move : moves){
             endPositions.add(move.getEndPosition());
