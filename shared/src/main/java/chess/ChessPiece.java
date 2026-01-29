@@ -63,6 +63,7 @@ public class ChessPiece {
         return new PieceMoveCalculator().pieceMoves(board, myPosition);
     }
 
+    //Helper Functions for Castling
     public boolean getHasMoved(){
         return hasMoved;
     }

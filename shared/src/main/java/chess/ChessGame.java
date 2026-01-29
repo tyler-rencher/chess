@@ -62,6 +62,7 @@ public class ChessGame {
             }
             board = new ChessBoard(clone);
         }
+        //Check if Castling Valid
         if((currentPiece.getPieceType() == ChessPiece.PieceType.KING) && canKingSideCastle(currentPiece.getTeamColor(), startPosition)){
             validatedMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(),7),null));
         }
@@ -72,6 +73,7 @@ public class ChessGame {
         return validatedMoves;
     }
 
+    //King Side Castle Check
     private boolean canKingSideCastle(TeamColor teamColor, ChessPosition kingPosition){
         ChessPosition rookKingSidePosition = new ChessPosition(kingPosition.getRow(),8);
         //ChessPosition rookQueenSidePosition = new ChessPosition(kingPosition.getRow(),1);
@@ -98,6 +100,7 @@ public class ChessGame {
         return true;
     }
 
+    //Queen Side Castle Moves
     private boolean canQueenSideCastle(TeamColor teamColor, ChessPosition kingPosition){
         //ChessPosition rookKingSidePosition = new ChessPosition(kingPosition.getRow(),8);
         ChessPosition rookQueenSidePosition = new ChessPosition(kingPosition.getRow(),1);
@@ -146,7 +149,7 @@ public class ChessGame {
             }
             if(validMoves(startPosition).contains(move)){
                 addAndRemovePiece(move);
-                //Add Castle Moves
+                //Add Rook Part of Castle Moves
                 if((currentPiece.getPieceType() == ChessPiece.PieceType.KING) && (move.equals(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(),7),null)))){
                     addAndRemovePiece(new ChessMove(new ChessPosition(startPosition.getRow(),8),new ChessPosition(startPosition.getRow(),6),null));
                 } else if((currentPiece.getPieceType() == ChessPiece.PieceType.KING) && (move.equals(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(),3),null)))){
@@ -266,6 +269,7 @@ public class ChessGame {
         return board;
     }
 
+    //Helper function to Change Team Color
     private void changeTeamColorTurn(){
         if(teamColor == TeamColor.WHITE){
             teamColor = TeamColor.BLACK;
@@ -274,6 +278,7 @@ public class ChessGame {
         }
     }
 
+    //Helper Function to find the king on the board
     private ChessPosition getKingPosition(TeamColor color){
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
@@ -286,6 +291,7 @@ public class ChessGame {
         return null;
     }
 
+    //Helper function to take pieceMoves and return a collection of only the EndPositions
     private Collection<ChessPosition> getEndPositions(ChessPosition startPosition){
         HashSet<ChessMove> moves = new HashSet<>(board.getPiece(startPosition).pieceMoves(board,startPosition));
         HashSet<ChessPosition> endPositions = new HashSet<>();

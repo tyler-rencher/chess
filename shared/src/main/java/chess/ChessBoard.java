@@ -15,7 +15,7 @@ public class ChessBoard {
         
     }
 
-    public ChessBoard(ChessBoard copy){
+    public ChessBoard(ChessBoard copy){ //Copy Constructor for cloning ChessBoard
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 if(copy.squares[i][j] == null){
