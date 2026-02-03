@@ -142,9 +142,13 @@ public class ChessGame {
                 //Add Rook Part of Castle Moves
                 if(currentPiece.getPieceType() == ChessPiece.PieceType.KING){
                     if(move.equals(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(),7),null))){
-                        addAndRemovePiece(new ChessMove(new ChessPosition(startPosition.getRow(),8),new ChessPosition(startPosition.getRow(),6),null));
+                        ChessPosition castleMoveStart = new ChessPosition(startPosition.getRow(),8);
+                        ChessPosition castleMoveDestination = new ChessPosition(startPosition.getRow(),6);
+                        addAndRemovePiece(new ChessMove(castleMoveStart,castleMoveDestination,null));
                     } else if(move.equals(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(),3),null))){
-                        addAndRemovePiece(new ChessMove(new ChessPosition(startPosition.getRow(),1),new ChessPosition(startPosition.getRow(),4),null));
+                        ChessPosition castleMoveStart = new ChessPosition(startPosition.getRow(),1);
+                        ChessPosition castleMoveDestination = new ChessPosition(startPosition.getRow(),4);
+                        addAndRemovePiece(new ChessMove(castleMoveStart,castleMoveDestination,null));
                     }
                 }
 
