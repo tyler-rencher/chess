@@ -34,7 +34,7 @@ public class PieceMoveCalculator {
     public boolean isValidMove(ChessBoard board, ChessPosition testPosition, ChessGame.TeamColor color){
         if(isOutOfBounds(testPosition)){
             if(board.getPiece(testPosition) == null){ return true;} //check if spot is empty
-            else return board.getPiece(testPosition).getTeamColor() != color;
+            else {return board.getPiece(testPosition).getTeamColor() != color;}
         } else{
             return false;
         }

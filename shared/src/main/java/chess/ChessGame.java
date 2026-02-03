@@ -210,17 +210,7 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         if(isInCheck(teamColor)){
-            for(int i = 0; i < 8; i++){
-                for(int j = 0; j < 8; j++){
-                    ChessPosition testPosition = new ChessPosition(i+1,j+1);
-                    if((board.getPiece(testPosition) != null) && (board.getPiece(testPosition).getTeamColor() == teamColor)){
-                        if(!validMoves(testPosition).isEmpty()){
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
+            return mateDetection(teamColor);
         } else{
             return false;
         }
@@ -235,20 +225,24 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         if(!isInCheck(teamColor)){
-            for(int i = 0; i < 8; i++){
-                for(int j = 0; j < 8; j++){
-                    ChessPosition testPosition = new ChessPosition(i+1,j+1);
-                    if((board.getPiece(testPosition) != null) && (board.getPiece(testPosition).getTeamColor() == teamColor)){
-                        if(!validMoves(testPosition).isEmpty()){
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
+            return mateDetection(teamColor);
         } else{
             return false;
         }
+    }
+
+    private boolean mateDetection(TeamColor teamColor){
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                ChessPosition testPosition = new ChessPosition(i+1,j+1);
+                if((board.getPiece(testPosition) != null) && (board.getPiece(testPosition).getTeamColor() == teamColor)){
+                    if(!validMoves(testPosition).isEmpty()){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
