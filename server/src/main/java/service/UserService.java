@@ -11,12 +11,14 @@ public class UserService {
     private final AuthDAO authDAO = new LocalAuthDAO();
     //public RegisterResult register(RegisterRequest registerRequest) {}
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException{
+        AuthData userAuth;
         UserData userData = userDAO.getUser(loginRequest.username());
         if(!userData.password().equals(loginRequest.password())){
-            throw new DataAccessException("AHHHH");
+            throw new DataAccessException("AHHHH"); //This should be Unauthorized error
         } else{
-            authDAO.createAuth(loginRequest.username());
+            userAuth = authDAO.createAuth(loginRequest.username());
         }
+        return new LoginResult(loginRequest.username(), userAuth.authToken());
     }
     //public void logout(LogoutRequest logoutRequest) {}
 }
