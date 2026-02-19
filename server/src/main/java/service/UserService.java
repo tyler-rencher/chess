@@ -3,8 +3,6 @@ import dataaccess.DataAccessException;
 import dataaccess.*;
 import model.*;
 
-import javax.xml.crypto.Data;
-
 
 public class UserService {
     private final UserDAO userDAO = new LocalUserDAO();
