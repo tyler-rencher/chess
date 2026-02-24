@@ -3,6 +3,7 @@ package handler;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import io.javalin.http.Context;
+import io.javalin.*;
 
 import service.LoginRequest;
 import service.LoginResult;
@@ -14,25 +15,32 @@ public class Handler {
         userService = new UserService();
     }
 
-    private static <T> getBody(Context context, Class<T> clazz) {
-        var body = new Gson().fromJson(context.body(), clazz);
+    private static <T> T getBodyObject(Context context, Class<T> clazz) {
+        var bodyObject = new Gson().fromJson(context.body(), clazz);
 
-        if (body == null) {
+        if (bodyObject == null) {
             throw new RuntimeException("missing required body");
         }
 
-        return body;
+        return bodyObject;
     }
 
-    public Object loginHandler(Request req, Result res){
+    public void loginHandler(Context ctx){
         try{
             Gson gson = new Gson();
-            LoginResult result = userService.login(getBody(req, LoginRequest.class));
-            return gson.toJson(result);
+            LoginResult result = userService.login(getBodyObject(ctx, LoginRequest.class));
+            ctx.status(200);
+            ctx.result(result.toString());
+            //return gson.toJson(result);
         } catch(DataAccessException e){
-            return "ERROR DATA";
+            ctx.status(400);
+            ctx.result(e.toString());
+            //return ctx;
+
         } catch (Exception e) {
-            return "ERROR GEN";
+            ctx.status(500);
+            ctx.result(e.toString());
+            //return "ERROR GEN";
         }
 
     }
