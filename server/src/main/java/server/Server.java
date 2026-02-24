@@ -1,6 +1,6 @@
 package server;
 
-import handler.LoginHandler;
+import handler.Handler;
 import io.javalin.*;
 
 public class Server {
@@ -11,10 +11,14 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
-        LoginHandler loginHandler = new LoginHandler();
+        Handler handler = new Handler();
 
-        javalin.post("/user", context ->
-                loginHandler.handleRequest(context));
+        javalin.post("/session", handler::loginHandler);
+
+        javalin.error(404, ctx -> {
+            ctx.result("Generic 404 message");
+        });
+
 
 
     }
