@@ -13,9 +13,11 @@ public class Server {
         // Register your endpoints and exception handlers here.
         Handler handler = new Handler();
 
+        javalin.post("/user", handler::registerHandler);
         javalin.post("/session", handler::loginHandler);
 
-        javalin.error(404, ctx -> {
+
+        javalin.error(400, ctx -> {
             ctx.result("Generic 404 message");
         });
 

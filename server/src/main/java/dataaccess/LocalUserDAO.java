@@ -15,7 +15,7 @@ public class LocalUserDAO implements UserDAO{
 
     @Override
     public void createUser(UserData userData) throws DataAccessException {
-
+        userDataSet.add(userData);
     }
 
     @Override
