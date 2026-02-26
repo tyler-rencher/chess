@@ -1,6 +1,5 @@
 package dataaccess;
 
-import model.AuthData;
 import model.UserData;
 
 import java.util.HashSet;
@@ -9,12 +8,12 @@ public class LocalUserDAO implements UserDAO{
     HashSet<UserData> userDataSet = new HashSet<>();
 
     @Override
-    public void clear() throws DataAccessException {
+    public void clear() {
         userDataSet.clear();
     }
 
     @Override
-    public void createUser(UserData userData) throws DataAccessException {
+    public void createUser(UserData userData) {
         userDataSet.add(userData);
     }
 

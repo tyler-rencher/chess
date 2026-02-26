@@ -3,7 +3,6 @@ import dataaccess.AlreadyTakenException;
 import dataaccess.UnauthorizedException;
 import dataaccess.UserNotFoundException;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import service.Requests.LoginRequest;
@@ -36,9 +35,8 @@ public class UserServiceTests {
     public void registerNegativeTest() {
         try {
             RegisterRequest request = new RegisterRequest("us","p","e");
-            RegisterResult result1 = userService.register(request);
-            AlreadyTakenException exception = assertThrows(
-                    AlreadyTakenException.class,
+            userService.register(request);
+            assertThrows(AlreadyTakenException.class,
                     () -> userService.register(request));
         } catch(Exception e){
             fail();
@@ -62,8 +60,7 @@ public class UserServiceTests {
             RegisterRequest testRegister = new RegisterRequest("ut","pt","et");
             userService.register(testRegister);
             LoginRequest request = new LoginRequest("ut","pp");
-            UnauthorizedException exception = assertThrows(
-                    UnauthorizedException.class,
+            assertThrows(UnauthorizedException.class,
                     () -> userService.login(request));
         } catch(Exception e){
             fail();
@@ -74,8 +71,7 @@ public class UserServiceTests {
     public void loginNegativeUserNotFoundTest() {
         try {
             LoginRequest request = new LoginRequest("uuuuuu","pp");
-            UserNotFoundException exception = assertThrows(
-                    UserNotFoundException.class,
+            assertThrows(UserNotFoundException.class,
                     () -> userService.login(request));
         } catch(Exception e){
             fail();

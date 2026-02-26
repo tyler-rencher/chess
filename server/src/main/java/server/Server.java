@@ -1,6 +1,5 @@
 package server;
 
-import dataaccess.AlreadyTakenException;
 import handler.Handler;
 import io.javalin.*;
 

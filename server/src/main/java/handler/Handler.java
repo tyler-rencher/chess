@@ -8,6 +8,7 @@ import dataaccess.UserNotFoundException;
 import io.javalin.http.Context;
 
 import service.Requests.LoginRequest;
+import service.Requests.LogoutRequest;
 import service.Requests.RegisterRequest;
 import service.Results.LoginResult;
 import service.Results.RegisterResult;
@@ -28,10 +29,10 @@ public class Handler {
 
         return bodyObject;
     }
-    public void alreadyTakenExceptionHandler(AlreadyTakenException ex, Context ctx){
-        ctx.status(403);
-        ctx.result(new Gson().toJson(ex));
-    }
+//    public void alreadyTakenExceptionHandler(AlreadyTakenException ex, Context ctx){
+//        ctx.status(403);
+//        ctx.result(new Gson().toJson(ex));
+//    }
     public void registerHandler(Context ctx){
         try{
             RegisterResult result = userService.register(getBodyObject(ctx, RegisterRequest.class));
@@ -63,9 +64,21 @@ public class Handler {
             ctx.result(e.toJson());
         } catch (Exception e) {
             ctx.status(500);
+            ctx.result(new Gson().toJson(e));
+        }
+    }
+
+    public void logoutHandler(Context ctx){
+        try{
+            userService.logout(getBodyObject(ctx, LogoutRequest.class));
+            ctx.status(200);
+        } catch(UnauthorizedException e){
+            ctx.status(401);
+            ctx.result(e.toJson());
+        } catch (Exception e) {
+            ctx.status(500);
             ctx.result(new Gson().toJson(e));;
         }
-
     }
 
 }
