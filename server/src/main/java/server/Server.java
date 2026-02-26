@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.AlreadyTakenException;
 import handler.Handler;
 import io.javalin.*;
 
@@ -16,6 +17,7 @@ public class Server {
         javalin.post("/user", handler::registerHandler);
         javalin.post("/session", handler::loginHandler);
 
+        //javalin.exception(AlreadyTakenException.class, handler::alreadyTakenExceptionHandler);
 
 
 

@@ -1,7 +1,10 @@
 package handler;
 
 import com.google.gson.Gson;
+import dataaccess.AlreadyTakenException;
 import dataaccess.DataAccessException;
+import dataaccess.UnauthorizedException;
+import dataaccess.UserNotFoundException;
 import io.javalin.http.Context;
 
 import service.Requests.LoginRequest;
@@ -25,41 +28,42 @@ public class Handler {
 
         return bodyObject;
     }
+    public void alreadyTakenExceptionHandler(AlreadyTakenException ex, Context ctx){
+        ctx.status(403);
+        ctx.result(new Gson().toJson(ex));
+    }
     public void registerHandler(Context ctx){
         try{
             RegisterResult result = userService.register(getBodyObject(ctx, RegisterRequest.class));
             ctx.status(200);
             ctx.result(new Gson().toJson(result));
-            //return gson.toJson(result);
         } catch(DataAccessException e){
             ctx.status(400);
             ctx.result(new Gson().toJson(e));
-            //return ctx;
-
-        } catch (Exception e) {
+        } catch(AlreadyTakenException e){
+            ctx.status(403);
+            ctx.result(e.toJson());
+        } catch(Exception e){
             ctx.status(500);
             ctx.result(new Gson().toJson(e));
-            //return "ERROR GEN";
         }
 
     }
 
     public void loginHandler(Context ctx){
         try{
-            Gson gson = new Gson();
             LoginResult result = userService.login(getBodyObject(ctx, LoginRequest.class));
             ctx.status(200);
             ctx.result(new Gson().toJson(result));
-            //return gson.toJson(result);
-        } catch(DataAccessException e){
+        } catch(UserNotFoundException e){
             ctx.status(400);
-            ctx.result(new Gson().toJson(e));
-            //return ctx;
-
+            ctx.result(e.toJson());
+        } catch(UnauthorizedException e){
+            ctx.status(401);
+            ctx.result(e.toJson());
         } catch (Exception e) {
             ctx.status(500);
-            ctx.result(new Gson().toJson(e));
-            //return "ERROR GEN";
+            ctx.result(new Gson().toJson(e));;
         }
 
     }

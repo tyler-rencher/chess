@@ -20,7 +20,6 @@ public class LocalUserDAO implements UserDAO{
 
     @Override
     public UserData getUser(String username){
-
         for (UserData user : userDataSet) {
             if (user.username().equals(username)) {
                 return user;
