@@ -17,10 +17,6 @@ public class Server {
         javalin.post("/session", handler::loginHandler);
 
 
-        javalin.error(400, ctx -> {
-            ctx.result("Generic 404 message");
-        });
-
 
 
     }
