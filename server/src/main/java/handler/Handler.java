@@ -70,14 +70,15 @@ public class Handler {
 
     public void logoutHandler(Context ctx){
         try{
-            userService.logout(getBodyObject(ctx, LogoutRequest.class));
+            LogoutRequest request = new LogoutRequest(new Gson().fromJson(ctx.header("authorization"), String.class));
+            userService.logout(request);
             ctx.status(200);
         } catch(UnauthorizedException e){
             ctx.status(401);
             ctx.result(e.toJson());
         } catch (Exception e) {
             ctx.status(500);
-            ctx.result(new Gson().toJson(e));;
+            ctx.result(new Gson().toJson(e));
         }
     }
 
