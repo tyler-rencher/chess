@@ -1,7 +1,5 @@
 package service;
-import dataaccess.AlreadyTakenException;
-import dataaccess.UnauthorizedException;
-import dataaccess.UserNotFoundException;
+import dataaccess.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,8 +24,9 @@ public class UserServiceTests {
     @BeforeEach
     public void beforeEach(){
         try {
-            userService = new UserService();
+            userService = new UserService(new LocalUserDAO(), new LocalAuthDAO());
             registerTest = new RegisterRequest("ut","pt","et");
+            userService.register(registerTest);
             authTokenTest = userService.getAuthToken("ut");
         } catch(Exception e){
             fail("Exception in Before Block");
@@ -49,7 +48,6 @@ public class UserServiceTests {
     @Test
     public void registerNegativeTest() {
         try {
-            userService.register(registerTest);
             assertThrows(AlreadyTakenException.class,
                     () -> userService.register(registerTest));
         } catch(Exception e){
@@ -95,10 +93,20 @@ public class UserServiceTests {
     public void logoutPositiveTest() {
         try {
             LogoutRequest request = new LogoutRequest(authTokenTest);
-            userService.logout(request);
-            assertEquals(200,200);
+            assertDoesNotThrow(() -> userService.logout(request));
         } catch(Exception e){
             fail("Exception Thrown");
+        }
+    }
+
+    @Test
+    public void logoutNegativeTest() {
+        try {
+            LogoutRequest request = new LogoutRequest("");
+            assertThrows(UnauthorizedException.class,
+                    () -> userService.logout(request));
+        } catch(Exception e){
+            fail();
         }
     }
 }
