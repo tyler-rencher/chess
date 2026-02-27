@@ -39,4 +39,13 @@ public class LocalAuthDAO implements AuthDAO{
             }
         }
     }
+
+    public String findAuthTokenFromUsername(String username){
+        for (AuthData auth : authDataSet) {
+            if (auth.username().equals(username)) {
+                return auth.authToken();
+            }
+        }
+        return null;
+    }
 }

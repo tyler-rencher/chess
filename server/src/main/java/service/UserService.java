@@ -25,6 +25,7 @@ public class UserService {
         AuthData authData = authDAO.createAuth(registerRequest.username());
         return new RegisterResult(registerRequest.username(),authData.authToken());
     }
+
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException, UnauthorizedException, UserNotFoundException {
         AuthData userAuth;
         UserData userData = userDAO.getUser(loginRequest.username());
@@ -44,5 +45,9 @@ public class UserService {
             throw new UnauthorizedException("Error: unauthorized");
         }
         authDAO.deleteAuth(logoutRequest.authToken());
+    }
+
+    public String getAuthToken(String username){
+        return authDAO.findAuthTokenFromUsername(username);
     }
 }
