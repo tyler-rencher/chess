@@ -13,8 +13,13 @@ import service.Results.RegisterResult;
 
 
 public class UserService {
-    private final UserDAO userDAO = new LocalUserDAO();
-    private final AuthDAO authDAO = new LocalAuthDAO();
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
+    public UserService(UserDAO userDAO, AuthDAO authDAO){
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
+    }
+
     public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException, AlreadyTakenException{
         UserData userData = userDAO.getUser(registerRequest.username());
         if(userData != null){

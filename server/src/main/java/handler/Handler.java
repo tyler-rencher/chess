@@ -1,12 +1,10 @@
 package handler;
 
 import com.google.gson.Gson;
-import dataaccess.AlreadyTakenException;
-import dataaccess.DataAccessException;
-import dataaccess.UnauthorizedException;
-import dataaccess.UserNotFoundException;
+import dataaccess.*;
 import io.javalin.http.Context;
 
+import service.ClearService;
 import service.Requests.LoginRequest;
 import service.Requests.LogoutRequest;
 import service.Requests.RegisterRequest;
@@ -15,9 +13,11 @@ import service.Results.RegisterResult;
 import service.UserService;
 
 public class Handler {
-    private UserService userService;
-    public Handler(){
-        userService = new UserService();
+    private final UserService userService;
+    private final ClearService clearService;
+    public Handler(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO){
+        userService = new UserService(userDAO, authDAO);
+        clearService = new ClearService(userDAO,authDAO,gameDAO);
     }
 
     private static <T> T getBodyObject(Context context, Class<T> clazz) {
@@ -76,6 +76,15 @@ public class Handler {
         } catch(UnauthorizedException e){
             ctx.status(401);
             ctx.result(e.toJson());
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result(new Gson().toJson(e));
+        }
+    }
+    public void clearHandler(Context ctx){
+        try{
+            clearService.clear();
+            ctx.status(200);
         } catch (Exception e) {
             ctx.status(500);
             ctx.result(new Gson().toJson(e));
