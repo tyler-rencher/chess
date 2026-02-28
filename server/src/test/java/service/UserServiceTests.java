@@ -81,7 +81,7 @@ public class UserServiceTests {
     @Test
     public void loginNegativeUserNotFoundTest() {
         try {
-            LoginRequest request = new LoginRequest("uuuuuu","pp");
+            LoginRequest request = new LoginRequest(null,"pp");
             assertThrows(BadRequestException.class,
                     () -> userService.login(request));
         } catch(Exception e){
