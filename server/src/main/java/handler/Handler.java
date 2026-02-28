@@ -38,9 +38,9 @@ public class Handler {
             RegisterResult result = userService.register(getBodyObject(ctx, RegisterRequest.class));
             ctx.status(200);
             ctx.result(new Gson().toJson(result));
-        } catch(DataAccessException e){
+        } catch(UserNotFoundException e){
             ctx.status(400);
-            ctx.result(new Gson().toJson(e));
+            ctx.result(e.toJson());
         } catch(AlreadyTakenException e){
             ctx.status(403);
             ctx.result(e.toJson());

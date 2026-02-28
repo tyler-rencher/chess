@@ -21,6 +21,9 @@ public class UserService {
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException, AlreadyTakenException{
+        if(isNull(registerRequest.username())||isNull(registerRequest.password())||isNull(registerRequest.email())){
+            throw new UserNotFoundException("Error: bad request");
+        }
         UserData userData = userDAO.getUser(registerRequest.username());
         if(userData != null){
             throw new AlreadyTakenException("Error: already taken");
@@ -33,9 +36,12 @@ public class UserService {
 
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException, UnauthorizedException, UserNotFoundException {
         AuthData userAuth;
+        if(isNull(loginRequest.username())||isNull(loginRequest.password())){
+            throw new UserNotFoundException("Error: bad request");
+        }
         UserData userData = userDAO.getUser(loginRequest.username());
         if(userData == null){
-            throw new UserNotFoundException("Error: bad request");
+            throw new UnauthorizedException("Error: unauthorized");
         }
         if(!userData.password().equals(loginRequest.password())){
             throw new UnauthorizedException("Error: unauthorized");
@@ -54,5 +60,9 @@ public class UserService {
 
     public String getAuthToken(String username){
         return authDAO.findAuthTokenFromUsername(username);
+    }
+
+    private boolean isNull(String item){
+        return item == null;
     }
 }
