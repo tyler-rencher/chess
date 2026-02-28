@@ -10,19 +10,16 @@ import org.junit.jupiter.api.Test;
 import service.requests.*;
 import service.results.CreateGameResult;
 import service.results.ListGamesResult;
-import service.results.LoginResult;
 import service.results.RegisterResult;
 
 import java.util.HashSet;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class GameServiceTest {
-    private static UserService userService;
     private static GameService gameService;
     private static String authToken;
 
@@ -32,7 +29,7 @@ public class GameServiceTest {
         UserDAO userDAO = new LocalUserDAO();
         AuthDAO authDAO = new LocalAuthDAO();
         GameDAO gameDAO =  new LocalGameDAO();
-        userService = new UserService(userDAO,authDAO);
+        UserService userService = new UserService(userDAO,authDAO);
         gameService = new GameService(authDAO, gameDAO);
         try {
             RegisterRequest register = new RegisterRequest("ut","pt","et");
