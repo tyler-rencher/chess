@@ -38,7 +38,7 @@ public class GameService {
         }
         int gameID = gameDAO.createGame(createGameRequest.gameName());
 
-        return new CreateGameResult(String.valueOf(gameID));
+        return new CreateGameResult(gameID);
     }
     public void joinGame(JoinGameRequest joinGameRequest) throws UnauthorizedException, BadRequestException, AlreadyTakenException {
         AuthData userAuth = authDAO.getAuthData(joinGameRequest.authToken());
@@ -75,8 +75,9 @@ public class GameService {
 
     }
 
-    public String getAuthToken(String username){
-        return authDAO.findAuthTokenFromUsername(username);
+    public ChessGame getChessGame(int gameID){
+        GameData game = gameDAO.getGame(gameID);
+        return game.game();
     }
 
     private boolean isNull(String item){
