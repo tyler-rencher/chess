@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
@@ -39,19 +40,39 @@ public class GameService {
 
         return new CreateGameResult(String.valueOf(gameID));
     }
-    public void joinGame(JoinGameRequest joinGameRequest) throws DataAccessException, UnauthorizedException, BadRequestException {
+    public void joinGame(JoinGameRequest joinGameRequest) throws UnauthorizedException, BadRequestException, AlreadyTakenException {
         AuthData userAuth = authDAO.getAuthData(joinGameRequest.authToken());
-        if(isNull(joinGameRequest.playerColor())){
+        if(joinGameRequest.playerColor() == null){
             throw new BadRequestException("Error: bad request");
         }
         if(userAuth == null){
             throw new UnauthorizedException("Error: unauthorized");
         }
-        GameData gameData = gameDAO.getGame(joinGameRequest.gameID());
+        int gameID = joinGameRequest.gameID();
+        GameData gameData = gameDAO.getGame(gameID);
         if(gameData == null){
             throw new BadRequestException("Error: bad request");
         }
-        //authDAO.deleteAuth(logoutRequest.authToken());
+        ChessGame.TeamColor playerColor = joinGameRequest.playerColor();
+        String gameName = gameData.gameName();
+        String username = userAuth.username();
+        if(playerColor == ChessGame.TeamColor.WHITE){
+            if(gameData.whiteUsername() == null){
+                GameData newGame = new GameData(gameID, username,gameData.blackUsername(),gameName,gameData.game());
+                gameDAO.updateGame(newGame);
+            } else{
+                throw new AlreadyTakenException("Error: already taken");
+            }
+        }
+        if(playerColor == ChessGame.TeamColor.BLACK){
+            if(gameData.blackUsername() == null){
+                GameData newGame = new GameData(gameID, gameData.whiteUsername(),username,gameName,gameData.game());
+                gameDAO.updateGame(newGame);
+            } else{
+                throw new AlreadyTakenException("Error: already taken");
+            }
+        }
+
     }
 
     public String getAuthToken(String username){
@@ -59,6 +80,6 @@ public class GameService {
     }
 
     private boolean isNull(String item){
-        return item == null;
+        return (item == null) || (item.isEmpty());
     }
 }

@@ -10,24 +10,29 @@ public class LocalGameDAO implements GameDAO{
     HashSet<GameData> gameDataSet = new HashSet<>();
     int gameID = 0;
     @Override
-    public void clear() throws DataAccessException {
+    public void clear() {
         gameDataSet.clear();
     }
 
     @Override
-    public int createGame(String gameName) throws DataAccessException {
+    public int createGame(String gameName){
         gameID++;
         gameDataSet.add(new GameData(gameID,null,null,gameName,new ChessGame()));
         return gameID;
     }
 
     @Override
-    public void updateGame(GameData gameData) throws DataAccessException {
-
+    public void updateGame(GameData gameData) {
+        for (GameData game : gameDataSet) {
+            if (game.gameID() == gameData.gameID()) {
+                gameDataSet.remove(game);
+                gameDataSet.add(gameData);
+            }
+        }
     }
 
     @Override
-    public GameData getGame(int gameID) throws DataAccessException {
+    public GameData getGame(int gameID) {
         for (GameData game : gameDataSet) {
             if (game.gameID() == gameID) {
                 return game;
@@ -37,7 +42,7 @@ public class LocalGameDAO implements GameDAO{
     }
 
     @Override
-    public Collection<GameData> listGames() throws DataAccessException {
+    public Collection<GameData> listGames() {
         return gameDataSet;
     }
 }

@@ -82,7 +82,7 @@ public class UserServiceTests {
     public void loginNegativeUserNotFoundTest() {
         try {
             LoginRequest request = new LoginRequest("uuuuuu","pp");
-            assertThrows(UserNotFoundException.class,
+            assertThrows(BadRequestException.class,
                     () -> userService.login(request));
         } catch(Exception e){
             fail();

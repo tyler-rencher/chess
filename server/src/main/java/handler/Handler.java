@@ -1,5 +1,6 @@
 package handler;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.http.Context;
@@ -25,14 +26,22 @@ public class Handler {
 
     private static <T> T getBodyObject(Context context, Class<T> clazz) {
         var bodyObject = new Gson().fromJson(context.body(), clazz);
-
         if (bodyObject == null) {
             throw new RuntimeException("missing required body");
         }
-
         return bodyObject;
     }
+    private static String getBodyString(Context context) {
+        var bodyString = new Gson().fromJson(context.body(), String.class);
+        if (bodyString == null) {
+            throw new RuntimeException("missing required body");
+        }
+        return bodyString;
+    }
     private String getAuthToken(Context ctx){
+        if(ctx.header("authorization") == null){
+            return null;
+        }
         return new Gson().fromJson(ctx.header("authorization"), String.class);
     }
 //    public void alreadyTakenExceptionHandler(AlreadyTakenException ex, Context ctx){
@@ -98,7 +107,8 @@ public class Handler {
     }
     public void createGameHandler(Context ctx){
         try{
-            CreateGameRequest request = new CreateGameRequest(getAuthToken(ctx),ctx.body());
+            CreateGameRequest requestBody = (getBodyObject(ctx,CreateGameRequest.class));
+            CreateGameRequest request = new CreateGameRequest(getAuthToken(ctx),requestBody.gameName());
             CreateGameResult result = gameService.createGame(request);
             ctx.status(200);
             ctx.result(new Gson().toJson(result));
@@ -130,12 +140,19 @@ public class Handler {
     }
     public void joinGameHandler(Context ctx){
         try{
-            JoinGameRequest request = (getBodyObject(ctx, JoinGameRequest.class)); //FIXME I'm broken
-            request.authToken() = getAuthToken(ctx);
-            gameService.joinGame(request);;
+            JoinGameRequest requestBody = getBodyObject(ctx, JoinGameRequest.class);
+            String authToken = ctx.header("authorization");
+            JoinGameRequest requestFull = new JoinGameRequest(authToken,requestBody.playerColor(),requestBody.gameID());
+            gameService.joinGame(requestFull);
             ctx.status(200);
+        } catch(BadRequestException e){
+            ctx.status(400);
+            ctx.result(e.toJson());
         } catch(UnauthorizedException e){
             ctx.status(401);
+            ctx.result(e.toJson());
+        } catch(AlreadyTakenException e){
+            ctx.status(403);
             ctx.result(e.toJson());
         } catch (Exception e) {
             ctx.status(500);

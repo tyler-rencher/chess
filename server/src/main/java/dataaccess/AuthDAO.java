@@ -1,6 +1,5 @@
 package dataaccess;
 
-import dataaccess.DataAccessException;
 import model.*;
 
 public interface AuthDAO {
@@ -10,7 +9,7 @@ public interface AuthDAO {
 
     AuthData createAuth(String username) throws DataAccessException;
 
-    AuthData getAuthData(String authToken) throws DataAccessException;
+    AuthData getAuthData(String authToken);
 
     void deleteAuth(String authToken) throws DataAccessException;
 
