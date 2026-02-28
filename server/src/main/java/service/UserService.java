@@ -5,11 +5,11 @@ import dataaccess.BadRequestException;
 
 import dataaccess.*;
 import model.*;
-import service.Requests.LoginRequest;
-import service.Requests.LogoutRequest;
-import service.Requests.RegisterRequest;
-import service.Results.LoginResult;
-import service.Results.RegisterResult;
+import service.requests.LoginRequest;
+import service.requests.LogoutRequest;
+import service.requests.RegisterRequest;
+import service.results.LoginResult;
+import service.results.RegisterResult;
 
 
 public class UserService {

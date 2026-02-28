@@ -1,4 +1,4 @@
-package service.Results;
+package service.results;
 
 public record RegisterResult (
         String username,

@@ -4,8 +4,8 @@ import dataaccess.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.Requests.LogoutRequest;
-import service.Requests.RegisterRequest;
+import service.requests.LogoutRequest;
+import service.requests.RegisterRequest;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.fail;

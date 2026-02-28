@@ -1,17 +1,16 @@
 package handler;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.http.Context;
 
 import service.ClearService;
 import service.GameService;
-import service.Requests.*;
-import service.Results.CreateGameResult;
-import service.Results.ListGamesResult;
-import service.Results.LoginResult;
-import service.Results.RegisterResult;
+import service.requests.*;
+import service.results.CreateGameResult;
+import service.results.ListGamesResult;
+import service.results.LoginResult;
+import service.results.RegisterResult;
 import service.UserService;
 
 public class Handler {
@@ -31,23 +30,12 @@ public class Handler {
         }
         return bodyObject;
     }
-    private static String getBodyString(Context context) {
-        var bodyString = new Gson().fromJson(context.body(), String.class);
-        if (bodyString == null) {
-            throw new RuntimeException("missing required body");
-        }
-        return bodyString;
-    }
     private String getAuthToken(Context ctx){
         if(ctx.header("authorization") == null){
             return null;
         }
         return new Gson().fromJson(ctx.header("authorization"), String.class);
     }
-//    public void alreadyTakenExceptionHandler(AlreadyTakenException ex, Context ctx){
-//        ctx.status(403);
-//        ctx.result(new Gson().toJson(ex));
-//    }
     public void registerHandler(Context ctx){
         try{
             RegisterResult result = userService.register(getBodyObject(ctx, RegisterRequest.class));
