@@ -25,6 +25,8 @@ public class Server {
         javalin.delete("/db",handler::clearHandler);
         //Game Methods
         javalin.post("/game",handler::createGameHandler);
+        javalin.get("/game",handler::listGamesHandler);
+        javalin.put("/game",handler::joinGameHandler);
 
         //javalin.exception(AlreadyTakenException.class, handler::alreadyTakenExceptionHandler);
 

@@ -5,7 +5,6 @@ import model.GameData;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 public class LocalGameDAO implements GameDAO{
     HashSet<GameData> gameDataSet = new HashSet<>();
@@ -29,11 +28,16 @@ public class LocalGameDAO implements GameDAO{
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
+        for (GameData game : gameDataSet) {
+            if (game.gameID() == gameID) {
+                return game;
+            }
+        }
         return null;
     }
 
     @Override
     public Collection<GameData> listGames() throws DataAccessException {
-        return List.of();
+        return gameDataSet;
     }
 }

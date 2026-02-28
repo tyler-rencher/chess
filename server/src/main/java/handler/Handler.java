@@ -6,11 +6,9 @@ import io.javalin.http.Context;
 
 import service.ClearService;
 import service.GameService;
-import service.Requests.CreateGameRequest;
-import service.Requests.LoginRequest;
-import service.Requests.LogoutRequest;
-import service.Requests.RegisterRequest;
+import service.Requests.*;
 import service.Results.CreateGameResult;
+import service.Results.ListGamesResult;
 import service.Results.LoginResult;
 import service.Results.RegisterResult;
 import service.UserService;
@@ -107,6 +105,35 @@ public class Handler {
         } catch(BadRequestException e){
             ctx.status(400);
             ctx.result(e.toJson());
+        } catch(UnauthorizedException e){
+            ctx.status(401);
+            ctx.result(e.toJson());
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result(new Gson().toJson(e));
+        }
+    }
+
+    public void listGamesHandler(Context ctx){
+        try{
+            ListGamesRequest request = new ListGamesRequest(getAuthToken(ctx));
+            ListGamesResult result = gameService.listGames(request);;
+            ctx.status(200);
+            ctx.result(new Gson().toJson(result));
+        } catch(UnauthorizedException e){
+            ctx.status(401);
+            ctx.result(e.toJson());
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result(new Gson().toJson(e));
+        }
+    }
+    public void joinGameHandler(Context ctx){
+        try{
+            JoinGameRequest request = (getBodyObject(ctx, JoinGameRequest.class)); //FIXME I'm broken
+            request.authToken() = getAuthToken(ctx);
+            gameService.joinGame(request);;
+            ctx.status(200);
         } catch(UnauthorizedException e){
             ctx.status(401);
             ctx.result(e.toJson());

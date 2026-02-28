@@ -2,12 +2,12 @@ package service;
 
 import dataaccess.*;
 import model.AuthData;
-import model.UserData;
+import model.GameData;
 import service.Requests.CreateGameRequest;
-import service.Requests.LogoutRequest;
-import service.Requests.RegisterRequest;
+import service.Requests.JoinGameRequest;
+import service.Requests.ListGamesRequest;
 import service.Results.CreateGameResult;
-import service.Results.RegisterResult;
+import service.Results.ListGamesResult;
 
 public class GameService {
     private final AuthDAO authDAO;
@@ -18,18 +18,12 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
 
-    public RegisterResult listGames(RegisterRequest registerRequest) throws DataAccessException, AlreadyTakenException {
-        if(isNull(registerRequest.username())||isNull(registerRequest.password())||isNull(registerRequest.email())){
-            throw new UserNotFoundException("Error: bad request");
+    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws DataAccessException, UnauthorizedException {
+        AuthData userAuth = authDAO.getAuthData(listGamesRequest.authToken());
+        if(userAuth == null){
+            throw new UnauthorizedException("Error: unauthorized");
         }
-        UserData userData = userDAO.getUser(registerRequest.username());
-        if(userData != null){
-            throw new AlreadyTakenException("Error: already taken");
-        }
-        UserData newUser = new UserData(registerRequest.username(),registerRequest.password(),registerRequest.email());
-        userDAO.createUser(newUser);
-        AuthData authData = authDAO.createAuth(registerRequest.username());
-        return new RegisterResult(registerRequest.username(),authData.authToken());
+        return new ListGamesResult(gameDAO.listGames());
     }
 
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException, UnauthorizedException, BadRequestException {
@@ -45,12 +39,19 @@ public class GameService {
 
         return new CreateGameResult(String.valueOf(gameID));
     }
-    public void joinGame(LogoutRequest logoutRequest) throws DataAccessException, UnauthorizedException {
-        AuthData userAuth = authDAO.getAuthData(logoutRequest.authToken());
+    public void joinGame(JoinGameRequest joinGameRequest) throws DataAccessException, UnauthorizedException, BadRequestException {
+        AuthData userAuth = authDAO.getAuthData(joinGameRequest.authToken());
+        if(isNull(joinGameRequest.playerColor())){
+            throw new BadRequestException("Error: bad request");
+        }
         if(userAuth == null){
             throw new UnauthorizedException("Error: unauthorized");
         }
-        authDAO.deleteAuth(logoutRequest.authToken());
+        GameData gameData = gameDAO.getGame(joinGameRequest.gameID());
+        if(gameData == null){
+            throw new BadRequestException("Error: bad request");
+        }
+        //authDAO.deleteAuth(logoutRequest.authToken());
     }
 
     public String getAuthToken(String username){
