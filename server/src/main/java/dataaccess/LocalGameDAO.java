@@ -1,6 +1,6 @@
 package dataaccess;
 
-import model.AuthData;
+import chess.ChessGame;
 import model.GameData;
 
 import java.util.Collection;
@@ -8,15 +8,18 @@ import java.util.HashSet;
 import java.util.List;
 
 public class LocalGameDAO implements GameDAO{
-    HashSet<AuthData> gameDataSet = new HashSet<>();
+    HashSet<GameData> gameDataSet = new HashSet<>();
+    int gameID = 0;
     @Override
     public void clear() throws DataAccessException {
         gameDataSet.clear();
     }
 
     @Override
-    public void createGame(String gameName) throws DataAccessException {
-
+    public int createGame(String gameName) throws DataAccessException {
+        gameID++;
+        gameDataSet.add(new GameData(gameID,null,null,gameName,new ChessGame()));
+        return gameID;
     }
 
     @Override

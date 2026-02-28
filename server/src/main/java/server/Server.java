@@ -23,6 +23,8 @@ public class Server {
         javalin.delete("/session", handler::logoutHandler);
         //Clear Method
         javalin.delete("/db",handler::clearHandler);
+        //Game Methods
+        javalin.post("/game",handler::createGameHandler);
 
         //javalin.exception(AlreadyTakenException.class, handler::alreadyTakenExceptionHandler);
 
