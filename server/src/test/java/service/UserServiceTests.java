@@ -11,7 +11,6 @@ import service.results.LoginResult;
 import service.results.RegisterResult;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -115,7 +115,7 @@ public class Handler {
     public void listGamesHandler(Context ctx){
         try{
             ListGamesRequest request = new ListGamesRequest(getAuthToken(ctx));
-            ListGamesResult result = gameService.listGames(request);;
+            ListGamesResult result = gameService.listGames(request);
             ctx.status(200);
             ctx.result(new Gson().toJson(result));
         } catch(UnauthorizedException e){

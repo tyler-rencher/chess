@@ -15,6 +15,6 @@ public interface AuthDAO {
 
     void deleteAuth(String authToken) throws DataAccessException;
 
-    public String findAuthTokenFromUsername(String username);
-    public Collection<String> findAuthTokenCollectionFromUsername(String username);
+    String findAuthTokenFromUsername(String username);
+    Collection<String> findAuthTokenCollectionFromUsername(String username);
 }

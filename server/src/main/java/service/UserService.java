@@ -1,7 +1,4 @@
 package service;
-import dataaccess.DataAccessException;
-import dataaccess.AlreadyTakenException;
-import dataaccess.BadRequestException;
 
 import dataaccess.*;
 import model.*;
