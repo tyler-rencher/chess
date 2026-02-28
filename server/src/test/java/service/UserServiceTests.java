@@ -10,6 +10,10 @@ import service.requests.RegisterRequest;
 import service.results.LoginResult;
 import service.results.RegisterResult;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {
@@ -26,8 +30,8 @@ public class UserServiceTests {
         try {
             userService = new UserService(new LocalUserDAO(), new LocalAuthDAO());
             registerTest = new RegisterRequest("ut","pt","et");
-            userService.register(registerTest);
-            authTokenTest = userService.getAuthToken("ut");
+            RegisterResult result = userService.register(registerTest);
+            authTokenTest = result.authToken();
         } catch(Exception e){
             fail("Exception in Before Block");
         }
@@ -60,8 +64,14 @@ public class UserServiceTests {
         try {
             LoginRequest request = new LoginRequest("ut","pt");
             LoginResult resultActual = userService.login(request);
-            String newAuthToken = userService.getAuthToken("ut");
-            LoginResult resultExpected = new LoginResult("ut", newAuthToken);
+            Collection<String> newAuthTokens = userService.getAuthTokenCollection("ut");
+            String authTokenExpected = null;
+            for(String authToken : newAuthTokens){
+                if(Objects.equals(authToken, resultActual.authToken())){
+                    authTokenExpected = authToken;
+                }
+            }
+            LoginResult resultExpected = new LoginResult("ut", authTokenExpected);
             assertEquals(resultExpected,resultActual); //I don't know how to deal with the auth
         } catch(Exception e){
             fail("Exception Thrown");

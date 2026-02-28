@@ -11,6 +11,8 @@ import service.requests.RegisterRequest;
 import service.results.LoginResult;
 import service.results.RegisterResult;
 
+import java.util.Collection;
+
 
 public class UserService {
     private final UserDAO userDAO;
@@ -60,6 +62,9 @@ public class UserService {
 
     public String getAuthToken(String username){
         return authDAO.findAuthTokenFromUsername(username);
+    }
+    public Collection<String> getAuthTokenCollection(String username){
+        return authDAO.findAuthTokenCollectionFromUsername(username);
     }
 
     private boolean isNull(String item){

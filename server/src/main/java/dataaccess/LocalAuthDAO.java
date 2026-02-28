@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.AuthData;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -47,5 +48,14 @@ public class LocalAuthDAO implements AuthDAO{
             }
         }
         return null;
+    }
+    public Collection<String> findAuthTokenCollectionFromUsername(String username){
+        HashSet<String> authTokens = new HashSet<>();
+        for (AuthData auth : authDataSet) {
+            if (auth.username().equals(username)) {
+                authTokens.add(auth.authToken());
+            }
+        }
+        return authTokens;
     }
 }
