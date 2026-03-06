@@ -12,9 +12,13 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
+
+        //if change these 3 lines of code between Local and MySQL versions
         UserDAO userDAO = new LocalUserDAO();
         AuthDAO authDAO = new LocalAuthDAO();
         GameDAO gameDAO = new LocalGameDAO();
+
+        //create Handler
         Handler handler = new Handler(userDAO, authDAO, gameDAO);
 
         //userService Methods

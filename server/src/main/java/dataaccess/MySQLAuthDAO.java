@@ -1,0 +1,61 @@
+package dataaccess;
+
+import model.AuthData;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.UUID;
+
+public class MySQLAuthDAO implements AuthDAO{
+
+    HashSet<AuthData> authDataSet = new HashSet<>();
+    @Override
+    public void clear() throws DataAccessException {
+        authDataSet.clear();
+    }
+
+    @Override
+    public AuthData createAuth(String username){
+        AuthData tempAuthData = new AuthData(UUID.randomUUID().toString(),username);
+        authDataSet.add(tempAuthData);
+        return tempAuthData;
+    }
+
+    @Override
+    public AuthData getAuthData(String authToken) {
+        for (AuthData auth : authDataSet) {
+            if (auth.authToken().equals(authToken)) {
+                return auth;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void deleteAuth(String authToken) {
+        for (AuthData auth : authDataSet) {
+            if (auth.authToken().equals(authToken)) {
+                authDataSet.remove(auth);
+                break;
+            }
+        }
+    }
+
+    public String findAuthTokenFromUsername(String username){
+        for (AuthData auth : authDataSet) {
+            if (auth.username().equals(username)) {
+                return auth.authToken();
+            }
+        }
+        return null;
+    }
+    public Collection<String> findAuthTokenCollectionFromUsername(String username){
+        HashSet<String> authTokens = new HashSet<>();
+        for (AuthData auth : authDataSet) {
+            if (auth.username().equals(username)) {
+                authTokens.add(auth.authToken());
+            }
+        }
+        return authTokens;
+    }
+}
