@@ -1,10 +1,15 @@
 package dataaccess;
 
+import com.google.gson.Gson;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashSet;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class MySQLUserDAO implements UserDAO{
     HashSet<UserData> userDataSet = new HashSet<>();
@@ -33,11 +38,10 @@ public class MySQLUserDAO implements UserDAO{
     }
 
     @Override
-    public void createUser(UserData userData) {
+    public void createUser(UserData userData) throws DataAccessException{
         var statement = "INSERT INTO userData (username, password, email) VALUES (?, ?, ?)";
-        String json = new Gson().toJson(pet);
-        int id = executeUpdate(statement, pet.name(), pet.type(), json);
-        return new Pet(id, pet.name(), pet.type());
+        String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+        int id = executeUpdate(statement, userData.username(), hashedPassword, userData.email());
     }
 
     @Override
@@ -49,6 +53,26 @@ public class MySQLUserDAO implements UserDAO{
         }
         return null;
     }
+
+    private int executeUpdate(String statement, UserData userData) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try(PreparedStatement stmt = conn.prepareStatement(statement)) {
+                stmt.setString(1, userData.username());
+                stmt.setString(2, userData.password());
+                stmt.setString(3, userData.email());
+
+                if(stmt.executeUpdate() == 1) {
+                    System.out.println("Updated userData " + userData.getId());
+                } else {
+                    System.out.println(
+                            "Failed to update book " + book.getId());
+                }
+            } catch(SQLException ex) {
+                // ERROR
+                throw DataAccessException("UR MOM GAY");
+            }
+
+        }
 
     private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
