@@ -15,7 +15,6 @@ import static java.sql.Types.NULL;
 
 public class MySQLGameDAO implements GameDAO{
     HashSet<GameData> gameDataSet = new HashSet<>();
-    int gameID = 0;
 
     public MySQLGameDAO() throws DataAccessException {
         configureDatabase();
@@ -23,7 +22,7 @@ public class MySQLGameDAO implements GameDAO{
 
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  authData (
+            CREATE TABLE IF NOT EXISTS  gameData (
               `gameID` int NOT NULL AUTO_INCREMENT,
               `whiteUsername` varchar(256),
               `blackUsername` varchar(256),
@@ -37,15 +36,15 @@ public class MySQLGameDAO implements GameDAO{
     };
 
     @Override
-    public void clear() {
-        gameDataSet.clear();
+    public void clear() throws DataAccessException{
+        var statement = "TRUNCATE gameData";
+        executeUpdate(statement);
     }
 
     @Override
-    public int createGame(String gameName){
-        gameID++;
-        gameDataSet.add(new GameData(gameID,null,null,gameName,new ChessGame()));
-        return gameID;
+    public int createGame(String gameName) throws DataAccessException{
+        var statement = "INSERT INTO gameData (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
+        return executeUpdate(statement, null, null, gameName, new ChessGame());
     }
 
     @Override
@@ -59,13 +58,29 @@ public class MySQLGameDAO implements GameDAO{
     }
 
     @Override
-    public GameData getGame(int gameID) {
-        for (GameData game : gameDataSet) {
-            if (game.gameID() == gameID) {
-                return game;
+    public GameData getGame(int gameID) throws DataAccessException{
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM gameData WHERE gameID=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readGame(rs);
+                    }
+                }
             }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         }
         return null;
+    }
+
+    private GameData readGame(ResultSet rs) throws SQLException {
+        var gameID = rs.getInt("gameID");
+        var white = rs.getString("whiteUsername");
+        var black = rs.getString("blackUsername");
+        var gameName = rs.getString("gameName");
+        var chessGame = rs.getObject("game");
+        return new GameData(gameID, white, black,gameName,chessGame);
     }
 
     @Override
@@ -73,7 +88,7 @@ public class MySQLGameDAO implements GameDAO{
         return gameDataSet;
     }
 
-    private String executeUpdate(String statement, Object... params) throws DataAccessException {
+    private int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < params.length; i++) {
@@ -91,10 +106,9 @@ public class MySQLGameDAO implements GameDAO{
 
                 ResultSet rs = ps.getGeneratedKeys();
                 if (rs.next()) {
-                    return rs.getString(1);
+                    return rs.getInt(1);
                 }
-
-                return null;
+                return 0;
             }
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
