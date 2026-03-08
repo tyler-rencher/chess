@@ -1,6 +1,8 @@
 package dataaccess;
 
 import model.AuthData;
+import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -35,35 +37,45 @@ public class MySQLAuthDAO implements AuthDAO{
 
     @Override
     public void clear() throws DataAccessException {
-        var statement = "TRUNCATE userData";
+        var statement = "TRUNCATE authData";
         executeUpdate(statement);
     }
 
     @Override
-    public AuthData createAuth(String username){
-        AuthData tempAuthData = new AuthData(UUID.randomUUID().toString(),username);
-        authDataSet.add(tempAuthData);
-        return tempAuthData;
+    public AuthData createAuth(String username) throws DataAccessException{
+        var statement = "INSERT INTO authData (authToken, username) VALUES (?, ?)";
+        String authToken = UUID.randomUUID().toString();
+        String id = executeUpdate(statement, authToken, username);
+        return new AuthData(authToken,username);
     }
 
     @Override
-    public AuthData getAuthData(String authToken) {
-        for (AuthData auth : authDataSet) {
-            if (auth.authToken().equals(authToken)) {
-                return auth;
+    public AuthData getAuthData(String authToken) throws DataAccessException{
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM authData WHERE authToken=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readAuth(rs);
+                    }
+                }
             }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         }
         return null;
     }
 
+    private AuthData readAuth(ResultSet rs) throws SQLException {
+        var authToken = rs.getString("authToken");
+        var username = rs.getString("username");
+        return new AuthData(authToken, username);
+    }
+
     @Override
-    public void deleteAuth(String authToken) {
-        for (AuthData auth : authDataSet) {
-            if (auth.authToken().equals(authToken)) {
-                authDataSet.remove(auth);
-                break;
-            }
-        }
+    public void deleteAuth(String authToken) throws DataAccessException{
+        var statement = "DELETE FROM authData WHERE authToken = ?;";
+        executeUpdate(statement, authToken);
     }
 
     public String findAuthTokenFromUsername(String username){

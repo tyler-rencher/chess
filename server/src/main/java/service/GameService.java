@@ -40,7 +40,7 @@ public class GameService {
 
         return new CreateGameResult(gameID);
     }
-    public void joinGame(JoinGameRequest joinGameRequest) throws UnauthorizedException, BadRequestException, AlreadyTakenException {
+    public void joinGame(JoinGameRequest joinGameRequest) throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
         AuthData userAuth = authDAO.getAuthData(joinGameRequest.authToken());
         if(joinGameRequest.playerColor() == null){
             throw new BadRequestException("Error: bad request");
