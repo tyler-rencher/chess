@@ -80,7 +80,7 @@ public class MySQLGameDAO implements GameDAO{
         var black = rs.getString("blackUsername");
         var gameName = rs.getString("gameName");
         var chessGame = rs.getObject("game");
-        return new GameData(gameID, white, black,gameName,chessGame);
+        return new GameData(gameID, white, black,gameName,new ChessGame()); //Fixme I need to serialize the game
     }
 
     @Override

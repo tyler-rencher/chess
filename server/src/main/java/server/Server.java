@@ -13,11 +13,18 @@ public class Server {
 
         // Register your endpoints and exception handlers here.
 
-        //if change these 3 lines of code between Local and MySQL versions
         UserDAO userDAO = new LocalUserDAO();
         AuthDAO authDAO = new LocalAuthDAO();
         GameDAO gameDAO = new LocalGameDAO();
 
+        //if change these 3 lines of code between Local and MySQL versions
+        try {
+            userDAO = new MySQLUserDAO();
+            authDAO = new MySQLAuthDAO();
+            gameDAO = new MySQLGameDAO();
+        } catch(Throwable ex){
+            System.out.printf("Unable to instantiate DAOs: %s%n", ex.getMessage());
+        }
         //create Handler
         Handler handler = new Handler(userDAO, authDAO, gameDAO);
 

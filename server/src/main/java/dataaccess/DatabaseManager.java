@@ -26,7 +26,7 @@ public class DatabaseManager {
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             throw new DataAccessException("failed to create database", ex);
-        }
+}
     }
 
     /**
