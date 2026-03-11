@@ -64,11 +64,11 @@ public class Handler {
             LoginResult result = userService.login(getBodyObject(ctx, LoginRequest.class));
             ctx.status(200);
             ctx.result(new Gson().toJson(result));
-        } catch(BadRequestException e){
-            ctx.status(400);
-            ctx.result(e.toJson());
         } catch(UnauthorizedException e){
             ctx.status(401);
+            ctx.result(e.toJson());
+        } catch(BadRequestException e){
+            ctx.status(400);
             ctx.result(e.toJson());
         } catch(DataAccessException e){
             ctx.status(500);

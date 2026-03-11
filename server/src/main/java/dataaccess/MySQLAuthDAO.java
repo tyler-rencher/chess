@@ -12,8 +12,6 @@ import java.util.UUID;
 
 public class MySQLAuthDAO implements AuthDAO{
 
-    HashSet<AuthData> authDataSet = new HashSet<>();
-
     public MySQLAuthDAO() throws DataAccessException {
         DatabaseManager.configureDatabase(createStatements);
     }
@@ -75,20 +73,10 @@ public class MySQLAuthDAO implements AuthDAO{
     }
 
     public String findAuthTokenFromUsername(String username){
-        for (AuthData auth : authDataSet) {
-            if (auth.username().equals(username)) {
-                return auth.authToken();
-            }
-        }
         return null;
     }
     public Collection<String> findAuthTokenCollectionFromUsername(String username){
         HashSet<String> authTokens = new HashSet<>();
-        for (AuthData auth : authDataSet) {
-            if (auth.username().equals(username)) {
-                authTokens.add(auth.authToken());
-            }
-        }
         return authTokens;
     }
 }
