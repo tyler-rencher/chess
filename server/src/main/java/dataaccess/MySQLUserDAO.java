@@ -1,7 +1,6 @@
 package dataaccess;
 
 import model.UserData;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,7 +37,7 @@ public class MySQLUserDAO implements UserDAO{
     @Override
     public void createUser(UserData userData) throws DataAccessException{
         var statement = "INSERT INTO userData (username, password, email) VALUES (?, ?, ?)";
-        String id = executeUpdate(statement, userData.username(), userData.password(), userData.email());
+        executeUpdate(statement, userData.username(), userData.password(), userData.email());
     }
 
     @Override
@@ -75,9 +74,8 @@ public class MySQLUserDAO implements UserDAO{
                         case String p -> ps.setString(i + 1, p);
                         case Integer p -> ps.setInt(i + 1, p);
                         case null -> ps.setNull(i + 1, NULL);
-                        default -> {
-                            ps.setNull(i + 1, NULL);
-                        }
+                        default ->  ps.setNull(i + 1, NULL);
+
                     }
                 }
                 ps.executeUpdate();

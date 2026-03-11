@@ -1,10 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
-import chess.ChessPiece;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
 import model.GameData;
 
 import java.sql.Connection;
@@ -91,7 +88,7 @@ public class MySQLGameDAO implements GameDAO{
             var statement = "SELECT * FROM gameData";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
+                while(rs.next()) {
                     gameList.add(readGame(rs));
                 }
 
@@ -112,9 +109,8 @@ public class MySQLGameDAO implements GameDAO{
                         case Integer p -> ps.setInt(i + 1, p);
                         case null -> ps.setNull(i + 1, NULL);
                         case ChessGame p -> ps.setString(i + 1, new Gson().toJson(p));
-                        default -> {
-                            ps.setNull(i + 1, NULL);
-                        }
+                        default -> ps.setNull(i + 1, NULL);
+
                     }
                 }
                 ps.executeUpdate();
