@@ -7,13 +7,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class MySQLUserDAO implements UserDAO{
-    HashSet<UserData> userDataSet = new HashSet<>();
 
     public MySQLUserDAO() throws DataAccessException {
         configureDatabase();
@@ -40,8 +38,7 @@ public class MySQLUserDAO implements UserDAO{
     @Override
     public void createUser(UserData userData) throws DataAccessException{
         var statement = "INSERT INTO userData (username, password, email) VALUES (?, ?, ?)";
-        String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
-        String id = executeUpdate(statement, userData.username(), hashedPassword, userData.email());
+        String id = executeUpdate(statement, userData.username(), userData.password(), userData.email());
     }
 
     @Override
@@ -49,6 +46,7 @@ public class MySQLUserDAO implements UserDAO{
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM userData WHERE username=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1,username);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return readUser(rs);

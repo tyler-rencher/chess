@@ -52,6 +52,7 @@ public class MySQLAuthDAO implements AuthDAO{
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM authData WHERE authToken=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1,authToken);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return readAuth(rs);

@@ -65,7 +65,7 @@ public class Handler {
         } catch(UnauthorizedException e){
             ctx.status(401);
             ctx.result(e.toJson());
-        } catch (Exception e) {
+        } catch(Exception e) {
             ctx.status(500);
             ctx.result(new Gson().toJson(e));
         }
@@ -79,7 +79,7 @@ public class Handler {
         } catch(UnauthorizedException e){
             ctx.status(401);
             ctx.result(e.toJson());
-        } catch (Exception e) {
+        } catch(Exception e) {
             ctx.status(500);
             ctx.result(new Gson().toJson(e));
         }
@@ -88,7 +88,7 @@ public class Handler {
         try{
             clearService.clear();
             ctx.status(200);
-        } catch (Exception e) {
+        } catch(Exception e) {
             ctx.status(500);
             ctx.result(new Gson().toJson(e));
         }
@@ -106,7 +106,7 @@ public class Handler {
         } catch(UnauthorizedException e){
             ctx.status(401);
             ctx.result(e.toJson());
-        } catch (Exception e) {
+        } catch(Exception e) {
             ctx.status(500);
             ctx.result(new Gson().toJson(e));
         }
@@ -121,7 +121,7 @@ public class Handler {
         } catch(UnauthorizedException e){
             ctx.status(401);
             ctx.result(e.toJson());
-        } catch (Exception e) {
+        } catch(Exception e) {
             ctx.status(500);
             ctx.result(new Gson().toJson(e));
         }
@@ -142,7 +142,7 @@ public class Handler {
         } catch(AlreadyTakenException e){
             ctx.status(403);
             ctx.result(e.toJson());
-        } catch (Exception e) {
+        } catch(Exception e) {
             ctx.status(500);
             ctx.result(new Gson().toJson(e));
         }
