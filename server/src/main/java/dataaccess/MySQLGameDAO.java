@@ -50,6 +50,9 @@ public class MySQLGameDAO implements GameDAO{
     @Override
     public void updateGame(GameData gameData) throws DataAccessException{
         var statement = "UPDATE gameData SET whiteUsername = ?, blackUsername = ?, game = ? WHERE gameID = ?";
+        if(gameData.gameID() == NULL){
+            throw new DataAccessException("Error null GameID");
+        }
         executeUpdate(statement, gameData.whiteUsername(), gameData.blackUsername(), gameData.game(), gameData.gameID());
     }
 
