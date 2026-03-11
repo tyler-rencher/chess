@@ -13,6 +13,8 @@ import service.results.LoginResult;
 import service.results.RegisterResult;
 import service.UserService;
 
+import java.util.Map;
+
 public class Handler {
     private final UserService userService;
     private final ClearService clearService;
@@ -47,9 +49,12 @@ public class Handler {
         } catch(AlreadyTakenException e){
             ctx.status(403);
             ctx.result(e.toJson());
+        } catch(DataAccessException e){
+            ctx.status(500);
+            ctx.result(e.toJson());
         } catch(Exception e){
             ctx.status(500);
-            ctx.result(new Gson().toJson(e));
+            ctx.result(new Gson().toJson(Map.of("message", e)));
         }
 
     }
@@ -65,9 +70,12 @@ public class Handler {
         } catch(UnauthorizedException e){
             ctx.status(401);
             ctx.result(e.toJson());
+        } catch(DataAccessException e){
+            ctx.status(500);
+            ctx.result(e.toJson());
         } catch(Exception e) {
             ctx.status(500);
-            ctx.result(new Gson().toJson(e));
+            ctx.result(new Gson().toJson(Map.of("message", e)));
         }
     }
 
@@ -79,18 +87,24 @@ public class Handler {
         } catch(UnauthorizedException e){
             ctx.status(401);
             ctx.result(e.toJson());
+        } catch(DataAccessException e){
+            ctx.status(500);
+            ctx.result(e.toJson());
         } catch(Exception e) {
             ctx.status(500);
-            ctx.result(new Gson().toJson(e));
+            ctx.result(new Gson().toJson(Map.of("message", e)));
         }
     }
     public void clearHandler(Context ctx){
         try{
             clearService.clear();
             ctx.status(200);
+        } catch(DataAccessException e){
+            ctx.status(500);
+            ctx.result(e.toJson());
         } catch(Exception e) {
             ctx.status(500);
-            ctx.result(new Gson().toJson(e));
+            ctx.result(new Gson().toJson(Map.of("message", e)));
         }
     }
     public void createGameHandler(Context ctx){
@@ -106,9 +120,12 @@ public class Handler {
         } catch(UnauthorizedException e){
             ctx.status(401);
             ctx.result(e.toJson());
+        } catch(DataAccessException e){
+            ctx.status(500);
+            ctx.result(e.toJson());
         } catch(Exception e) {
             ctx.status(500);
-            ctx.result(new Gson().toJson(e));
+            ctx.result(new Gson().toJson(Map.of("message", e)));
         }
     }
 
@@ -121,9 +138,12 @@ public class Handler {
         } catch(UnauthorizedException e){
             ctx.status(401);
             ctx.result(e.toJson());
+        } catch(DataAccessException e){
+            ctx.status(500);
+            ctx.result(e.toJson());
         } catch(Exception e) {
             ctx.status(500);
-            ctx.result(new Gson().toJson(e));
+            ctx.result(new Gson().toJson(Map.of("message", e)));
         }
     }
     public void joinGameHandler(Context ctx){
@@ -142,9 +162,12 @@ public class Handler {
         } catch(AlreadyTakenException e){
             ctx.status(403);
             ctx.result(e.toJson());
+        } catch(DataAccessException e){
+            ctx.status(500);
+            ctx.result(e.toJson());
         } catch(Exception e) {
             ctx.status(500);
-            ctx.result(new Gson().toJson(e));
+            ctx.result(new Gson().toJson(Map.of("message", e)));
         }
     }
 
