@@ -10,9 +10,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.UUID;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
-
 public class MySQLAuthDAO implements AuthDAO{
 
     HashSet<AuthData> authDataSet = new HashSet<>();
@@ -36,14 +33,14 @@ public class MySQLAuthDAO implements AuthDAO{
     @Override
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE authData";
-        executeUpdate(statement);
+        DatabaseManager.executeUpdate(statement);
     }
 
     @Override
     public AuthData createAuth(String username) throws DataAccessException{
         var statement = "INSERT INTO authData (authToken, username) VALUES (?, ?)";
         String authToken = UUID.randomUUID().toString();
-        String id = executeUpdate(statement, authToken, username);
+        DatabaseManager.executeUpdate(statement, authToken, username);
         return new AuthData(authToken,username);
     }
 
@@ -74,7 +71,7 @@ public class MySQLAuthDAO implements AuthDAO{
     @Override
     public void deleteAuth(String authToken) throws DataAccessException{
         var statement = "DELETE FROM authData WHERE authToken = ?;";
-        executeUpdate(statement, authToken);
+        DatabaseManager.executeUpdate(statement, authToken);
     }
 
     public String findAuthTokenFromUsername(String username){
@@ -93,34 +90,6 @@ public class MySQLAuthDAO implements AuthDAO{
             }
         }
         return authTokens;
-    }
-
-    private String executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    switch (param) {
-                        case String p -> ps.setString(i + 1, p);
-                        case Integer p -> ps.setInt(i + 1, p);
-                        case null -> ps.setNull(i + 1, NULL);
-                        default -> {
-                            ps.setNull(i + 1, NULL);
-                        }
-                    }
-                }
-                ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getString(1);
-                }
-
-                return null;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
-        }
     }
 
     private void configureDatabase() throws DataAccessException {

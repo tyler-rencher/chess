@@ -7,9 +7,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
-
 public class MySQLUserDAO implements UserDAO{
 
     public MySQLUserDAO() throws DataAccessException {
@@ -31,13 +28,13 @@ public class MySQLUserDAO implements UserDAO{
     @Override
     public void clear() throws DataAccessException{
         var statement = "TRUNCATE userData";
-        executeUpdate(statement);
+        DatabaseManager.executeUpdate(statement);
     }
 
     @Override
     public void createUser(UserData userData) throws DataAccessException{
         var statement = "INSERT INTO userData (username, password, email) VALUES (?, ?, ?)";
-        executeUpdate(statement, userData.username(), userData.password(), userData.email());
+        DatabaseManager.executeUpdate(statement, userData.username(), userData.password(), userData.email());
     }
 
     @Override
@@ -63,33 +60,6 @@ public class MySQLUserDAO implements UserDAO{
         var passwordHashed = rs.getString("password");
         var email = rs.getString("email");
         return new UserData(username, passwordHashed,email);
-    }
-
-    private String executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    switch (param) {
-                        case String p -> ps.setString(i + 1, p);
-                        case Integer p -> ps.setInt(i + 1, p);
-                        case null -> ps.setNull(i + 1, NULL);
-                        default ->  ps.setNull(i + 1, NULL);
-
-                    }
-                }
-                ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getString(1);
-                }
-
-                return null;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
-        }
     }
 
     private void configureDatabase() throws DataAccessException {
