@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class MySQLUserDAO implements UserDAO{
 
     public MySQLUserDAO() throws DataAccessException {
-        configureDatabase();
+        DatabaseManager.configureDatabase(createStatements);
     }
 
     private final String[] createStatements = {
@@ -60,19 +60,6 @@ public class MySQLUserDAO implements UserDAO{
         var passwordHashed = rs.getString("password");
         var email = rs.getString("email");
         return new UserData(username, passwordHashed,email);
-    }
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Error: Unable to configure database: %s", ex.getMessage()));
-        }
     }
 
 }

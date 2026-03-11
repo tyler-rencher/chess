@@ -15,7 +15,7 @@ public class MySQLAuthDAO implements AuthDAO{
     HashSet<AuthData> authDataSet = new HashSet<>();
 
     public MySQLAuthDAO() throws DataAccessException {
-        configureDatabase();
+        DatabaseManager.configureDatabase(createStatements);
     }
 
     private final String[] createStatements = {
@@ -90,18 +90,5 @@ public class MySQLAuthDAO implements AuthDAO{
             }
         }
         return authTokens;
-    }
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Error: Unable to configure database: %s", ex.getMessage()));
-        }
     }
 }
