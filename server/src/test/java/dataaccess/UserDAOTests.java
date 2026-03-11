@@ -38,7 +38,7 @@ public class UserDAOTests {
     @Test
     public void clearPositiveTest() {
         try {
-            userDAOSQL.clear();
+            assertDoesNotThrow(() -> userDAOSQL.clear());
         } catch(Exception e){
             fail("Exception Thrown");
         }
