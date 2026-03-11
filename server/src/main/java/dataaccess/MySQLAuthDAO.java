@@ -79,7 +79,6 @@ public class MySQLAuthDAO implements AuthDAO{
         return null;
     }
     public Collection<String> findAuthTokenCollectionFromUsername(String username){
-        HashSet<String> authTokens = new HashSet<>();
-        return authTokens;
+        return new HashSet<>();
     }
 }

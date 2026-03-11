@@ -2,7 +2,6 @@ package dataaccess;
 
 import chess.ChessGame;
 import model.GameData;
-import model.UserData;
 import org.junit.jupiter.api.*;
 
 import java.util.Collection;
@@ -15,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GameDAOTests {
 
     private static GameDAO gameDAOSQL;
-    private static GameData testGameData;
     private static String testGameName;
     private static int originalGameID;
     private static String originalGameName;
@@ -26,7 +24,6 @@ public class GameDAOTests {
     public static void setUp()  {
         originalGameName = "game";
         testGameName = "test";
-        testGameData = new GameData(2,"w","b","g",new ChessGame());
 
         try {
             gameDAOSQL = new MySQLGameDAO();
