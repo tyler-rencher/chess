@@ -3,14 +3,17 @@ package service;
 import chess.ChessGame;
 import dataaccess.*;
 import model.GameData;
+import model.requests.CreateGameRequest;
+import model.requests.JoinGameRequest;
+import model.requests.ListGamesRequest;
+import model.requests.RegisterRequest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import service.requests.*;
-import service.results.CreateGameResult;
-import service.results.ListGamesResult;
-import service.results.RegisterResult;
+import model.results.CreateGameResult;
+import model.results.ListGamesResult;
+import model.results.RegisterResult;
 
 import java.util.HashSet;
 

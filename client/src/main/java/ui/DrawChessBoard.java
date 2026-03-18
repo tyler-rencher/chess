@@ -22,29 +22,24 @@ public class DrawChessBoard {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
         System.out.print("\nWhiteBoard:\n");
-        drawBoardWhite(board);
+        drawBoard(board,true);
         System.out.print("\nBlackBoard:\n");
-        drawBoardBlack(board);
+        drawBoard(board,false);
 
     }
 
-    public static void drawBoardBlack(ChessBoard board){
+    public static void drawBoard(ChessBoard board, boolean isWhite){
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
         out.print(ERASE_SCREEN);
-        drawHeaders(out, HEADERS_BLACK);
-        printBoardBlack(out, board);
-        drawHeaders(out, HEADERS_BLACK);
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_WHITE);
-    }
-    public static void drawBoardWhite(ChessBoard board){
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
-        out.print(ERASE_SCREEN);
-        drawHeaders(out, HEADERS_WHITE);
-        printBoardWhite(out, board);
-        drawHeaders(out, HEADERS_WHITE);
+        if(isWhite){
+            drawHeaders(out, HEADERS_WHITE);
+            printBoardWhite(out, board);
+            drawHeaders(out, HEADERS_WHITE);
+        } else{
+            drawHeaders(out, HEADERS_BLACK);
+            printBoardBlack(out, board);
+            drawHeaders(out, HEADERS_BLACK);
+        }
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
     }
@@ -170,12 +165,12 @@ public class DrawChessBoard {
     }
 
     private static void setDarkSquare(PrintStream out) {
-        out.print(SET_BG_COLOR_DARK_GREEN);
+        out.print(SET_BG_COLOR_DARK_BROWN);
         out.print(SET_TEXT_COLOR_BLACK);
     }
     private static void setText(PrintStream out) {
         out.print(SET_BG_COLOR_DARK_GREY);
-        out.print(SET_TEXT_COLOR_WHITE);
+        out.print(SET_TEXT_COLOR_YELLOW);
     }
 
 }

@@ -3,11 +3,11 @@ package service;
 import dataaccess.*;
 import model.*;
 import org.mindrot.jbcrypt.BCrypt;
-import service.requests.LoginRequest;
-import service.requests.LogoutRequest;
-import service.requests.RegisterRequest;
-import service.results.LoginResult;
-import service.results.RegisterResult;
+import model.requests.LoginRequest;
+import model.requests.LogoutRequest;
+import model.requests.RegisterRequest;
+import model.results.LoginResult;
+import model.results.RegisterResult;
 
 import java.util.Collection;
 

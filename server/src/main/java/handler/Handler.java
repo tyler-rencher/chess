@@ -4,13 +4,13 @@ import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.http.Context;
 
+import model.requests.*;
 import service.ClearService;
 import service.GameService;
-import service.requests.*;
-import service.results.CreateGameResult;
-import service.results.ListGamesResult;
-import service.results.LoginResult;
-import service.results.RegisterResult;
+import model.results.CreateGameResult;
+import model.results.ListGamesResult;
+import model.results.LoginResult;
+import model.results.RegisterResult;
 import service.UserService;
 
 import java.util.Map;

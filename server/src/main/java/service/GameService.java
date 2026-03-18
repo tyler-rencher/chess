@@ -4,11 +4,11 @@ import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
-import service.requests.CreateGameRequest;
-import service.requests.JoinGameRequest;
-import service.requests.ListGamesRequest;
-import service.results.CreateGameResult;
-import service.results.ListGamesResult;
+import model.requests.CreateGameRequest;
+import model.requests.JoinGameRequest;
+import model.requests.ListGamesRequest;
+import model.results.CreateGameResult;
+import model.results.ListGamesResult;
 
 public class GameService {
     private final AuthDAO authDAO;
