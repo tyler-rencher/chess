@@ -12,7 +12,8 @@ import static ui.EscapeSequences.*;
 
 public class DrawChessBoard {
 
-    private static final String[] headers = { "h", "g", "f", "e", "d", "c", "b", "a" };
+    private static final String[] headersBlack = { "h", "g", "f", "e", "d", "c", "b", "a" };
+    private static final String[] headersWhite = { "a", "b", "c", "d", "e", "f", "g", "h" };
     private static final String[] columns = { "1", "2", "3", "4", "5", "6", "7", "8" };
     public static boolean colorSwitch = true;
     private static final String spacer = "   ";
@@ -20,38 +21,50 @@ public class DrawChessBoard {
     public static void main(String[] args) {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        drawBoard(board);
+        System.out.print("\nWhiteBoard:\n");
+        drawBoardWhite(board);
+        System.out.print("\nBlackBoard:\n");
+        drawBoardBlack(board);
+
     }
 
-    public static void drawBoard(ChessBoard board){
+    public static void drawBoardBlack(ChessBoard board){
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         out.print(ERASE_SCREEN);
+        drawHeaders(out, headersBlack);
+        printBoardBlack(out, board);
+        drawHeaders(out, headersBlack);
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_WHITE);
+    }
+    public static void drawBoardWhite(ChessBoard board){
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
-        drawHeaders(out);
-
-        printBoard(out, board);
-        drawHeaders(out);
+        out.print(ERASE_SCREEN);
+        drawHeaders(out, headersWhite);
+        printBoardWhite(out, board);
+        drawHeaders(out, headersWhite);
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
     }
 
-    private static void drawHeaders(PrintStream out){
+    private static void drawHeaders(PrintStream out, String[] header){
         setText(out);
         out.print(spacer);
         for (int boardCol = 0; boardCol < 8; ++boardCol) {
-            out.print(spacer + " " + headers[boardCol] + EMPTY + " ");
+            out.print(spacer + " " + header[boardCol] + EMPTY + " ");
         }
         out.print(spacer);
         newLine(out);
     }
 
-    private static void printBoard(PrintStream out, ChessBoard board) {
+    private static void printBoardWhite(PrintStream out, ChessBoard board) {
         for(int row = 0; row < 8; row++){
             for(int rowHeight = 0; rowHeight < 3; rowHeight++){
                 setText(out);
                 if(rowHeight == 1){
-                    out.print(" " + columns[row] + " ");
+                    out.print(" " + columns[7-row] + " ");
                 } else{
                     out.print(spacer);
                 }
@@ -63,7 +76,7 @@ public class DrawChessBoard {
                     }
                     if(rowHeight == 1){
                         out.print(spacer);
-                        printPiece(out, board.getPiece(new ChessPosition(row+1, col+1)));
+                        printPiece(out, board.getPiece(new ChessPosition(8- row, col+1)));
                         out.print(spacer);
                     } else{
                         out.print(spacer + EMPTY + spacer);
@@ -72,13 +85,51 @@ public class DrawChessBoard {
                 }
                 setText(out);
                 if(rowHeight == 1){
-                    out.print(" " + columns[row] + " ");
+                    out.print(" " + columns[7-row] + " ");
                 } else{
                     out.print(spacer);
                 }
                 newLine(out);
             }
             colorSwitch = !colorSwitch;
+
+        }
+    }
+
+    private static void printBoardBlack(PrintStream out, ChessBoard board) {
+        for(int row = 7; row >= 0; --row){
+            for(int rowHeight = 0; rowHeight < 3; rowHeight++){
+                setText(out);
+                if(rowHeight == 1){
+                    out.print(" " + columns[7-row] + " ");
+                } else{
+                    out.print(spacer);
+                }
+                for(int col = 7; col >= 0; --col){
+                    if(colorSwitch){
+                        setLightSquare(out);
+                    } else{
+                        setDarkSquare(out);
+                    }
+                    if(rowHeight == 1){
+                        out.print(spacer);
+                        printPiece(out, board.getPiece(new ChessPosition(8-row, col+1)));
+                        out.print(spacer);
+                    } else{
+                        out.print(spacer + EMPTY + spacer);
+                    }
+                    colorSwitch = !colorSwitch;
+                }
+                setText(out);
+                if(rowHeight == 1){
+                    out.print(" " + columns[7-row] + " ");
+                } else{
+                    out.print(spacer);
+                }
+                newLine(out);
+            }
+            colorSwitch = !colorSwitch;
+
         }
     }
 
@@ -121,18 +172,14 @@ public class DrawChessBoard {
     }
 
     private static void newLine(PrintStream out){
-        setRed(out);
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_BLACK);
         out.print("\n");
     }
 
     private static void setLightSquare(PrintStream out) {
         out.print(SET_BG_COLOR_BLUE);
         out.print(SET_TEXT_COLOR_LIGHT_GREY);
-    }
-
-    private static void setRed(PrintStream out) {
-        out.print(SET_BG_COLOR_RED);
-        out.print(SET_TEXT_COLOR_RED);
     }
 
     private static void setDarkSquare(PrintStream out) {
