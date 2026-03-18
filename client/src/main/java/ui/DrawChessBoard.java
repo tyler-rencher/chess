@@ -62,18 +62,9 @@ public class DrawChessBoard {
     private static void printBoardWhite(PrintStream out, ChessBoard board) {
         for(int row = 0; row < 8; row++){
             for(int rowHeight = 0; rowHeight < 3; rowHeight++){
-                setText(out);
-                if(rowHeight == 1){
-                    out.print(" " + COLUMNS[7-row] + " ");
-                } else{
-                    out.print(SPACER);
-                }
+                printColumn(out,rowHeight,row);
                 for(int col = 0; col < 8; ++col){
-                    if(colorSwitch){
-                        setLightSquare(out);
-                    } else{
-                        setDarkSquare(out);
-                    }
+                    switchColors(out);
                     if(rowHeight == 1){
                         out.print(SPACER);
                         printPiece(out, board.getPiece(new ChessPosition(8- row, col+1)));
@@ -83,12 +74,7 @@ public class DrawChessBoard {
                     }
                     colorSwitch = !colorSwitch;
                 }
-                setText(out);
-                if(rowHeight == 1){
-                    out.print(" " + COLUMNS[7-row] + " ");
-                } else{
-                    out.print(SPACER);
-                }
+                printColumn(out, rowHeight, row);
                 newLine(out);
             }
             colorSwitch = !colorSwitch;
@@ -99,18 +85,9 @@ public class DrawChessBoard {
     private static void printBoardBlack(PrintStream out, ChessBoard board) {
         for(int row = 7; row >= 0; --row){
             for(int rowHeight = 0; rowHeight < 3; rowHeight++){
-                setText(out);
-                if(rowHeight == 1){
-                    out.print(" " + COLUMNS[7-row] + " ");
-                } else{
-                    out.print(SPACER);
-                }
+                printColumn(out,rowHeight,row);
                 for(int col = 7; col >= 0; --col){
-                    if(colorSwitch){
-                        setLightSquare(out);
-                    } else{
-                        setDarkSquare(out);
-                    }
+                    switchColors(out);
                     if(rowHeight == 1){
                         out.print(SPACER);
                         printPiece(out, board.getPiece(new ChessPosition(8-row, col+1)));
@@ -120,16 +97,30 @@ public class DrawChessBoard {
                     }
                     colorSwitch = !colorSwitch;
                 }
-                setText(out);
-                if(rowHeight == 1){
-                    out.print(" " + COLUMNS[7-row] + " ");
-                } else{
-                    out.print(SPACER);
-                }
+                printColumn(out, rowHeight, row);
                 newLine(out);
+
             }
             colorSwitch = !colorSwitch;
 
+        }
+    }
+
+    private static void printColumn(PrintStream out, int rowHeight, int row){
+        setText(out);
+        if(rowHeight == 1){
+            out.print(" " + COLUMNS[7-row] + " ");
+        } else{
+            out.print(SPACER);
+        }
+
+    }
+
+    private static void switchColors(PrintStream out){
+        if(colorSwitch){
+            setLightSquare(out);
+        } else{
+            setDarkSquare(out);
         }
     }
 
