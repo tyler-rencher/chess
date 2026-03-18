@@ -64,15 +64,7 @@ public class DrawChessBoard {
             for(int rowHeight = 0; rowHeight < 3; rowHeight++){
                 printColumn(out,rowHeight,row);
                 for(int col = 0; col < 8; ++col){
-                    switchColors(out);
-                    if(rowHeight == 1){
-                        out.print(SPACER);
-                        printPiece(out, board.getPiece(new ChessPosition(8- row, col+1)));
-                        out.print(SPACER);
-                    } else{
-                        out.print(SPACER + EMPTY + SPACER);
-                    }
-                    colorSwitch = !colorSwitch;
+                    loopColumns( out, row, col, rowHeight, board);
                 }
                 printColumn(out, rowHeight, row);
                 newLine(out);
@@ -87,15 +79,7 @@ public class DrawChessBoard {
             for(int rowHeight = 0; rowHeight < 3; rowHeight++){
                 printColumn(out,rowHeight,row);
                 for(int col = 7; col >= 0; --col){
-                    switchColors(out);
-                    if(rowHeight == 1){
-                        out.print(SPACER);
-                        printPiece(out, board.getPiece(new ChessPosition(8-row, col+1)));
-                        out.print(SPACER);
-                    } else{
-                        out.print(SPACER + EMPTY + SPACER);
-                    }
-                    colorSwitch = !colorSwitch;
+                    loopColumns( out, row, col, rowHeight, board);
                 }
                 printColumn(out, rowHeight, row);
                 newLine(out);
@@ -104,6 +88,18 @@ public class DrawChessBoard {
             colorSwitch = !colorSwitch;
 
         }
+    }
+
+    private static void loopColumns(PrintStream out, int row, int col, int rowHeight, ChessBoard board){
+        switchColors(out);
+        if(rowHeight == 1){
+            out.print(SPACER);
+            printPiece(out, board.getPiece(new ChessPosition(8- row, col+1)));
+            out.print(SPACER);
+        } else{
+            out.print(SPACER + EMPTY + SPACER);
+        }
+        colorSwitch = !colorSwitch;
     }
 
     private static void printColumn(PrintStream out, int rowHeight, int row){
