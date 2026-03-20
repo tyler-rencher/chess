@@ -74,7 +74,7 @@ public class Client {
             };
             return "";
         } catch (ResponseException ex) {
-            return ("ur mom");
+            return ex.toString();
         }
     }
 
@@ -91,12 +91,12 @@ public class Client {
                     """;
         }
         return """
-                1 - List Games
-                2 - Create Game
-                3 - Play Game
-                4 - Observe Game
-                5 - Help
-                6 - Logout
+                list - List Games
+                create - Create Game
+                play - Play Game
+                observe - Observe Game
+                help - Help
+                logout - Logout
                 
                 Type 1 to List Games, 2 to Create a Game, 3 to Play a Game, 4 to Observe a Game, 5 for Help and, 6 to Logout
                 """;

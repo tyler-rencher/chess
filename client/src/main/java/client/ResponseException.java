@@ -13,10 +13,18 @@ public class ResponseException extends Exception {
     }
 
     final private Code code;
+    final private String message;
 
     public ResponseException(Code code, String message) {
         super(message);
+        this.message = message;
         this.code = code;
+    }
+
+    public ResponseException(String message) {
+        super(message);
+        this.message = message;
+        code = Code.ServerError;
     }
 
     public String toJson() {
@@ -25,9 +33,9 @@ public class ResponseException extends Exception {
 
     public static ResponseException fromJson(String json) {
         var map = new Gson().fromJson(json, HashMap.class);
-        var status = Code.valueOf(map.get("status").toString());
+        //var status = Code.valueOf(map.get("status").toString());
         String message = map.get("message").toString();
-        return new ResponseException(status, message);
+        return new ResponseException( message);
     }
 
     public Code code() {
@@ -47,5 +55,10 @@ public class ResponseException extends Exception {
             case ServerError -> 500;
             case ClientError -> 400;
         };
+    }
+
+    @Override
+    public String toString() {
+        return message;
     }
 }
