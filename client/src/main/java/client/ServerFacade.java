@@ -1,7 +1,10 @@
 package client;
 
 import com.google.gson.Gson;
+import model.requests.LoginRequest;
+import model.requests.LogoutRequest;
 import model.requests.RegisterRequest;
+import model.results.LoginResult;
 import model.results.RegisterResult;
 
 import java.net.URI;
@@ -23,6 +26,21 @@ public class ServerFacade {
         var response = sendRequest(request);
         RegisterResult result = handleResponse(response, RegisterResult.class);
         return result != null ? result.authToken() : null;
+    }
+
+    public String loginUser(String[] params) throws ResponseException {
+        LoginRequest requestModel = new LoginRequest(params[0], params[1]);
+        var request = buildRequest("POST", "/session", requestModel);
+        var response = sendRequest(request);
+        LoginResult result = handleResponse(response, LoginResult.class);
+        return result != null ? result.authToken() : null;
+    }
+
+    public void logoutUser(String authToken) throws ResponseException {
+        LogoutRequest requestModel = new LogoutRequest(authToken);
+        var request = buildRequest("DELETE", "/session", requestModel);
+        var response = sendRequest(request);
+        handleResponse(response, null);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body) {
@@ -54,6 +72,9 @@ public class ServerFacade {
     private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws ResponseException {
         var status = response.statusCode();
         if (!isSuccessful(status)) {
+            if(responseClass == null){
+                return null;
+            }
             var body = response.body();
             if (body != null) {
                 throw ResponseException.fromJson(body);
