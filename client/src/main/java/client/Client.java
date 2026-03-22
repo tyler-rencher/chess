@@ -65,7 +65,8 @@ public class Client {
                     if(!isLoggedIn()){
                         return "Not Logged In";
                     }
-                    gameList = server.listGames(params);
+                    gameList = server.listGames(authToken);
+                    return listGames();
                 }
                 case "create" -> {
                     if(!isLoggedIn()){
@@ -79,7 +80,7 @@ public class Client {
                     }
                     server.joinGame(authToken, ChessGame.TeamColor.WHITE,gameID);
                 }
-                case "observe" -> server.listGames(params);
+                case "observe" -> server.listGames(authToken);
                 case "logout" -> {
                     if(!isLoggedIn()){
                         return "Not Logged In";
@@ -95,6 +96,9 @@ public class Client {
                 case "help", "h" -> {
                     return help();
                 }
+                case "clear1234" -> {
+                    server.clear();
+                }
                 default -> {
                     return "bad input try these:\n" + help();
                 }
@@ -107,8 +111,9 @@ public class Client {
 
     public String listGames(){
         StringBuilder sb = new StringBuilder();
+        sb.append("Game List:\n");
         if(gameList == null){
-            return "";
+            return sb.toString();
         }
         int index = 1;
         for(GameData gameData : gameList){

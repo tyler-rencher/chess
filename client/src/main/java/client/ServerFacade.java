@@ -27,7 +27,7 @@ public class ServerFacade {
 
     public String registerUser(String[] params) throws ResponseException {
         RegisterRequest requestModel = new RegisterRequest(params[0], params[1], params[2]);
-        var request = buildRequest("POST", "/user", requestModel);
+        var request = buildRequest("POST", "/user", requestModel,"");
         var response = sendRequest(request);
         RegisterResult result = handleResponse(response, RegisterResult.class);
         return result != null ? result.authToken() : null;
@@ -35,7 +35,7 @@ public class ServerFacade {
 
     public String loginUser(String[] params) throws ResponseException {
         LoginRequest requestModel = new LoginRequest(params[0], params[1]);
-        var request = buildRequest("POST", "/session", requestModel);
+        var request = buildRequest("POST", "/session", requestModel,"");
         var response = sendRequest(request);
         LoginResult result = handleResponse(response, LoginResult.class);
         return result != null ? result.authToken() : null;
@@ -43,14 +43,20 @@ public class ServerFacade {
 
     public void logoutUser(String authToken) throws ResponseException {
         LogoutRequest requestModel = new LogoutRequest(authToken);
-        var request = buildRequest("DELETE", "/session", requestModel);
+        var request = buildRequest("DELETE", "/session", requestModel,"");
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
-    public Collection<GameData> listGames(String[] params) throws ResponseException {
-        ListGamesRequest requestModel = new ListGamesRequest(params[0]);
-        var request = buildRequest("GET", "/game", requestModel);
+    public void clear() throws ResponseException {
+        var request = buildRequest("DELETE", "/db", "","");
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
+
+    public Collection<GameData> listGames(String authToken) throws ResponseException {
+        ListGamesRequest requestModel = new ListGamesRequest(authToken);
+        var request = buildRequest("GET", "/game", requestModel, authToken);
         var response = sendRequest(request);
         ListGamesResult result = handleResponse(response, ListGamesResult.class);
         return result != null ? result.games() : null;
@@ -58,7 +64,7 @@ public class ServerFacade {
 
     public int createGame(String authToken, String gameName) throws ResponseException {
         CreateGameRequest requestModel = new CreateGameRequest(authToken, gameName);
-        var request = buildRequest("POST", "/game", requestModel);
+        var request = buildRequest("POST", "/game", requestModel,"");
         var response = sendRequest(request);
         CreateGameResult result = handleResponse(response, CreateGameResult.class);
         return result != null ? result.gameID() : NULL;
@@ -66,19 +72,20 @@ public class ServerFacade {
 
     public String joinGame(String authToken, ChessGame.TeamColor playerColor,int gameID) throws ResponseException {
         JoinGameRequest requestModel = new JoinGameRequest(authToken,playerColor,gameID);
-        var request = buildRequest("PUT", "/game", requestModel);
+        var request = buildRequest("PUT", "/game", requestModel, "");
         var response = sendRequest(request);
         LoginResult result = handleResponse(response, LoginResult.class);
         return result != null ? result.authToken() : null;
     }
 
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
         }
+        request.setHeader("authorization", authToken);
         return request.build();
     }
 
