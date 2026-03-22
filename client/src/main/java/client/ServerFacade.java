@@ -1,9 +1,11 @@
 package client;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
-import model.requests.LoginRequest;
-import model.requests.LogoutRequest;
-import model.requests.RegisterRequest;
+import model.GameData;
+import model.requests.*;
+import model.results.CreateGameResult;
+import model.results.ListGamesResult;
 import model.results.LoginResult;
 import model.results.RegisterResult;
 
@@ -11,6 +13,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Collection;
+
+import static java.sql.Types.NULL;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
@@ -41,6 +46,30 @@ public class ServerFacade {
         var request = buildRequest("DELETE", "/session", requestModel);
         var response = sendRequest(request);
         handleResponse(response, null);
+    }
+
+    public Collection<GameData> listGames(String[] params) throws ResponseException {
+        ListGamesRequest requestModel = new ListGamesRequest(params[0]);
+        var request = buildRequest("GET", "/game", requestModel);
+        var response = sendRequest(request);
+        ListGamesResult result = handleResponse(response, ListGamesResult.class);
+        return result != null ? result.games() : null;
+    }
+
+    public int createGame(String authToken, String gameName) throws ResponseException {
+        CreateGameRequest requestModel = new CreateGameRequest(authToken, gameName);
+        var request = buildRequest("POST", "/game", requestModel);
+        var response = sendRequest(request);
+        CreateGameResult result = handleResponse(response, CreateGameResult.class);
+        return result != null ? result.gameID() : NULL;
+    }
+
+    public String joinGame(String authToken, ChessGame.TeamColor playerColor,int gameID) throws ResponseException {
+        JoinGameRequest requestModel = new JoinGameRequest(authToken,playerColor,gameID);
+        var request = buildRequest("PUT", "/game", requestModel);
+        var response = sendRequest(request);
+        LoginResult result = handleResponse(response, LoginResult.class);
+        return result != null ? result.authToken() : null;
     }
 
     private HttpRequest buildRequest(String method, String path, Object body) {

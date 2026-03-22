@@ -1,14 +1,24 @@
 package client;
 
+import chess.ChessGame;
+import model.GameData;
+
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Scanner;
 
 public class Client {
     private final ServerFacade server;
     private String authToken;
+    private int gameID;
+    private Collection<GameData> gameList;
+
     public Client(String serverUrl){
         authToken = null;
         server = new ServerFacade(serverUrl);
+        gameID = 0;
+        gameList = null;
     }
 
     public void run() {
@@ -51,13 +61,30 @@ public class Client {
                     }
                     authToken = server.loginUser(params);
                 }
-//                case "list" -> listPets();
-//                case "signout" -> signOut();
-//                case "adopt" -> adoptPet(params);
+                case "list" -> {
+                    if(!isLoggedIn()){
+                        return "Not Logged In";
+                    }
+                    gameList = server.listGames(params);
+                }
+                case "create" -> {
+                    if(!isLoggedIn()){
+                        return "Not Logged In";
+                    }
+                    gameID = server.createGame(authToken,params[1]);
+                }
+                case "play" -> {
+                    if(!isLoggedIn()){
+                        return "Not Logged In";
+                    }
+                    server.joinGame(authToken, ChessGame.TeamColor.WHITE,gameID);
+                }
+                case "observe" -> server.listGames(params);
                 case "logout" -> {
                     if(!isLoggedIn()){
                         return "Not Logged In";
                     }
+                    gameID = 0;
                     server.logoutUser(authToken);
                     authToken = null;
                 }
@@ -78,6 +105,23 @@ public class Client {
         }
     }
 
+    public String listGames(){
+        StringBuilder sb = new StringBuilder();
+        if(gameList == null){
+            return "";
+        }
+        int index = 1;
+        for(GameData gameData : gameList){
+            sb.append(index);
+            sb.append(" " + gameData.gameName());
+            sb.append("WHITE: " + ((gameData.whiteUsername() == null) ? "EMPTY" : gameData.whiteUsername()));
+            sb.append(" BLACK: " + ((gameData.blackUsername() == null) ? "EMPTY" : gameData.blackUsername()));
+            sb.append("\n");
+            index++;
+        }
+        return sb.toString();
+    }
+
     public String help() {
         if (!isLoggedIn()) {
             return """
@@ -91,10 +135,10 @@ public class Client {
                     """;
         }
         return """
-                list - List Games
-                create - Create Game
-                play - Play Game
-                observe - Observe Game
+                list - List All Games
+                create - <gameName> - Create a Game
+                join - <id> [WHITE|BLACK] - Join Game
+                observe - <id> - Observe Game
                 help - Help
                 logout - Logout
                 
