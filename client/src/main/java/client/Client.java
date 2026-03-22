@@ -1,12 +1,19 @@
 package client;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import model.GameData;
+import ui.DrawChessBoard;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Scanner;
+
+import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
+import static ui.EscapeSequences.SET_BG_COLOR_BLACK;
+import static ui.EscapeSequences.SET_TEXT_COLOR_WHITE;
 
 public class Client {
     private final ServerFacade server;
@@ -22,6 +29,8 @@ public class Client {
     }
 
     public void run() {
+        System.out.print(SET_BG_COLOR_BLACK);
+        System.out.print(SET_TEXT_COLOR_WHITE);
         System.out.println("Welcome Chess! Sign in to start.\n\n");
         System.out.print(help());
 
@@ -35,7 +44,6 @@ public class Client {
                 result = eval(line);
                 System.out.print(result);
             } catch (Throwable e) {
-                System.out.print("oh hi mark\n");
                 var msg = e.toString();
                 System.out.print(msg);
             }
@@ -53,13 +61,21 @@ public class Client {
                     if(isLoggedIn()){
                         return "Already Logged In";
                     }
+                    if(params.length != 3){
+                        throw new ResponseException("Error: Bad input on Register!");
+                    }
                     authToken = server.registerUser(params);
+                    return "Registered!\n" + help();
                 }
                 case "login" -> {
                     if(isLoggedIn()){
                         return "Already Logged In";
                     }
+                    if(params.length != 2){
+                        throw new ResponseException("Error: Bad input on Login!");
+                    }
                     authToken = server.loginUser(params);
+                    return "Logged In!\n" + help();
                 }
                 case "list" -> {
                     if(!isLoggedIn()){
@@ -72,15 +88,30 @@ public class Client {
                     if(!isLoggedIn()){
                         return "Not Logged In";
                     }
-                    gameID = server.createGame(authToken,params[1]);
+                    if(params.length != 1){
+                        throw new ResponseException("Error: Bad input on Create!");
+                    }
+                    gameID = server.createGame(authToken,params[0]);
                 }
-                case "play" -> {
+                case "join" -> {
                     if(!isLoggedIn()){
                         return "Not Logged In";
                     }
-                    server.joinGame(authToken, ChessGame.TeamColor.WHITE,gameID);
+                    if(params.length != 2){
+                        throw new ResponseException("Error: Bad input on join!");
+                    }
+                    ChessGame.TeamColor color = getColor(params[1]);
+                    gameID = Integer.parseInt(params[0]);
+                    server.joinGame(authToken, color,gameID);
+                    gameList = server.listGames(authToken);
+                    showGame(color, gameID);
                 }
-                case "observe" -> server.listGames(authToken);
+                case "observe" -> {
+                    if(params.length != 1){
+                        throw new ResponseException("Error: Bad input on Observe!");
+                    }
+                    showGame(WHITE,Integer.parseInt(params[0]));
+                }
                 case "logout" -> {
                     if(!isLoggedIn()){
                         return "Not Logged In";
@@ -96,7 +127,9 @@ public class Client {
                 case "help", "h" -> {
                     return help();
                 }
-                case "clear1234" -> {
+                case "clear" -> {
+                    authToken = null;
+                    gameID = 0;
                     server.clear();
                 }
                 default -> {
@@ -119,12 +152,28 @@ public class Client {
         for(GameData gameData : gameList){
             sb.append(index);
             sb.append(" " + gameData.gameName());
-            sb.append("WHITE: " + ((gameData.whiteUsername() == null) ? "EMPTY" : gameData.whiteUsername()));
+            sb.append(" WHITE: " + ((gameData.whiteUsername() == null) ? "EMPTY" : gameData.whiteUsername()));
             sb.append(" BLACK: " + ((gameData.blackUsername() == null) ? "EMPTY" : gameData.blackUsername()));
             sb.append("\n");
             index++;
         }
         return sb.toString();
+    }
+
+    private ChessGame.TeamColor getColor(String color) throws ResponseException {
+        if(color.equalsIgnoreCase("white")){
+            return WHITE;
+        } else if(color.equalsIgnoreCase("black")){
+            return BLACK;
+        } else{
+            throw new ResponseException("Error: Bad Color Entered");
+        }
+    }
+
+    private void showGame(ChessGame.TeamColor color, int gameID){
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        DrawChessBoard.drawBoard(board, color == WHITE);
     }
 
     public String help() {
@@ -142,12 +191,12 @@ public class Client {
         return """
                 list - List All Games
                 create - <gameName> - Create a Game
-                join - <id> [WHITE|BLACK] - Join Game
+                join - <id> <[WHITE|BLACK]> - Join Game
                 observe - <id> - Observe Game
                 help - Help
                 logout - Logout
                 
-                Type 1 to List Games, 2 to Create a Game, 3 to Play a Game, 4 to Observe a Game, 5 for Help and, 6 to Logout
+                Type one of the above commands followed by its parameters designated by the <>
                 """;
     }
 

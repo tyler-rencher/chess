@@ -64,18 +64,17 @@ public class ServerFacade {
 
     public int createGame(String authToken, String gameName) throws ResponseException {
         CreateGameRequest requestModel = new CreateGameRequest(authToken, gameName);
-        var request = buildRequest("POST", "/game", requestModel,"");
+        var request = buildRequest("POST", "/game", requestModel,authToken);
         var response = sendRequest(request);
         CreateGameResult result = handleResponse(response, CreateGameResult.class);
         return result != null ? result.gameID() : NULL;
     }
 
-    public String joinGame(String authToken, ChessGame.TeamColor playerColor,int gameID) throws ResponseException {
+    public void joinGame(String authToken, ChessGame.TeamColor playerColor,int gameID) throws ResponseException {
         JoinGameRequest requestModel = new JoinGameRequest(authToken,playerColor,gameID);
-        var request = buildRequest("PUT", "/game", requestModel, "");
+        var request = buildRequest("PUT", "/game", requestModel, authToken);
         var response = sendRequest(request);
-        LoginResult result = handleResponse(response, LoginResult.class);
-        return result != null ? result.authToken() : null;
+        handleResponse(response, null);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
