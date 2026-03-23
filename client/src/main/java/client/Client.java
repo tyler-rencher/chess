@@ -7,7 +7,6 @@ import ui.DrawChessBoard;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Scanner;
 
 import static chess.ChessGame.TeamColor.BLACK;
@@ -101,7 +100,11 @@ public class Client {
                         throw new ResponseException("Error: Bad input on join!");
                     }
                     ChessGame.TeamColor color = getColor(params[1]);
-                    gameID = Integer.parseInt(params[0]);
+                    try{
+                        gameID = Integer.parseInt(params[0]);
+                    } catch(Exception e){
+                        throw new ResponseException("Error: not an integer on game number");
+                    }
                     server.joinGame(authToken, color,gameID);
                     gameList = server.listGames(authToken);
                     showGame(color, gameID);
@@ -135,7 +138,7 @@ public class Client {
                 default -> {
                     return "bad input try these:\n" + help();
                 }
-            };
+            }
             return "";
         } catch (ResponseException ex) {
             return ex.toString();
