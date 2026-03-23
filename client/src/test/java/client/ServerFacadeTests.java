@@ -11,6 +11,7 @@ import model.results.RegisterResult;
 import org.junit.jupiter.api.*;
 import server.Server;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -33,6 +34,7 @@ public class ServerFacadeTests {
         serverFacade = new ServerFacade("http://localhost:" + port);
         System.out.println("Started test HTTP server on " + port);
         try{
+            serverFacade.clear();
             String[] params = {"q", "q", "q"};
             authToken = serverFacade.registerUser(params);
             String[] params2 = {"l", "l", "l"};
@@ -44,16 +46,16 @@ public class ServerFacadeTests {
 
     @AfterAll
     static void stopServer() {
+        try{
+            serverFacade.clear();
+        } catch(Exception e){
+            fail("failure in After All Block");
+        }
         server.stop();
     }
 
-
     @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
-    }
-
-    @Test
+    @Order(1)
     public void registerPositiveTest(){
         try {
             String[] params = {"t", "t", "t"};
@@ -64,9 +66,10 @@ public class ServerFacadeTests {
     }
 
     @Test
+    @Order(2)
     public void registerNegativeTest(){
         try {
-            String[] params = {"q", "q", "q"};
+            String[] params = {"t", "t", "t"};
             assertThrows(ResponseException.class,
                     () -> serverFacade.registerUser(params));
         } catch(Exception e){
@@ -75,6 +78,7 @@ public class ServerFacadeTests {
     }
 
     @Test
+    @Order(3)
     public void loginPositiveTest() {
         try {
             String[] params = {"t", "t"};
@@ -85,6 +89,7 @@ public class ServerFacadeTests {
     }
 
     @Test
+    @Order(4)
     public void loginNegativeTest(){
         try {
             String[] params = {"e", "e"};
@@ -96,19 +101,23 @@ public class ServerFacadeTests {
     }
 
     @Test
+    @Order(5)
     public void logoutPositiveTest() {
         try{
-            assertDoesNotThrow(() -> serverFacade.logoutUser(authToken));
+            String[] param = {"w", "w", "w"};
+            String authToken3 = serverFacade.registerUser(param);
+            assertDoesNotThrow(() -> serverFacade.logoutUser(authToken3));
         } catch(Exception e){
             fail();
         }
     }
 
     @Test
+    @Order(6)
     public void logoutNegativeTest() {
         try {
             assertThrows(ResponseException.class,
-                    () -> serverFacade.logoutUser(null));
+                    () -> serverFacade.logoutUser(authToken));
         } catch(Exception e){
             fail();
         }
@@ -118,6 +127,7 @@ public class ServerFacadeTests {
 
 
     @Test
+    @Order(7)
     public void createPositiveTest() {
         try{
             int number = serverFacade.createGame(authToken2,"testGame");
@@ -128,6 +138,7 @@ public class ServerFacadeTests {
     }
 
     @Test
+    @Order(8)
     public void createNegativeTest() {
         try{
             assertThrows(ResponseException.class,
@@ -138,11 +149,12 @@ public class ServerFacadeTests {
     }
 
     @Test
+    @Order(9)
     public void listPositiveTest() {
         try{
             Collection<GameData> listActual = serverFacade.listGames(authToken2);
-            Collection<GameData> listExpected = new HashSet<>();
-            GameData game = new GameData(1,null,null,"testGame",new ChessGame());
+            Collection<GameData> listExpected = new ArrayList<>();
+            GameData game = new GameData(1,"l",null,"testGame",new ChessGame());
             listExpected.add(game);
             assertEquals(listExpected,listActual);
         } catch(Exception e){
@@ -150,6 +162,7 @@ public class ServerFacadeTests {
         }
     }
     @Test
+    @Order(10)
     public void listNegativeTest() {
         try{
             assertThrows(ResponseException.class, () -> serverFacade.listGames(null));
@@ -159,11 +172,12 @@ public class ServerFacadeTests {
     }
 
     @Test
+    @Order(11)
     public void joinPositiveTest() {
         try{
             serverFacade.joinGame(authToken2, ChessGame.TeamColor.WHITE,1);
             Collection<GameData> listActual = serverFacade.listGames(authToken2);
-            Collection<GameData> listExpected = new HashSet<>();
+            Collection<GameData> listExpected = new ArrayList<>();
             GameData game = new GameData(1,"l",null,"testGame",new ChessGame());
             listExpected.add(game);
             assertEquals(listExpected,listActual);
@@ -172,6 +186,7 @@ public class ServerFacadeTests {
         }
     }
     @Test
+    @Order(12)
     public void joinNegativeTest() {
         try{
             assertThrows(ResponseException.class,
@@ -182,6 +197,7 @@ public class ServerFacadeTests {
     }
 
     @Test
+    @Order(13)
     public void clearTest() {
         try{
             assertDoesNotThrow(() -> serverFacade.clear());

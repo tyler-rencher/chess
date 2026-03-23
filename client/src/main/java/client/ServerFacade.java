@@ -43,7 +43,7 @@ public class ServerFacade {
 
     public void logoutUser(String authToken) throws ResponseException {
         LogoutRequest requestModel = new LogoutRequest(authToken);
-        var request = buildRequest("DELETE", "/session", requestModel,"");
+        var request = buildRequest("DELETE", "/session", requestModel,authToken);
         var response = sendRequest(request);
         handleResponse(response, null);
     }
@@ -55,6 +55,9 @@ public class ServerFacade {
     }
 
     public Collection<GameData> listGames(String authToken) throws ResponseException {
+        if(authToken == null){
+            throw new ResponseException("Error: please login first");
+        }
         ListGamesRequest requestModel = new ListGamesRequest(authToken);
         var request = buildRequest("GET", "/game", requestModel, authToken);
         var response = sendRequest(request);
@@ -107,9 +110,6 @@ public class ServerFacade {
     private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws ResponseException {
         var status = response.statusCode();
         if (!isSuccessful(status)) {
-            if(responseClass == null){
-                return null;
-            }
             var body = response.body();
             if (body != null) {
                 throw ResponseException.fromJson(body);
