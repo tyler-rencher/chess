@@ -18,6 +18,7 @@ public class Client {
     private final ServerFacade server;
     private String authToken;
     private int gameID;
+    private boolean inGame;
     private Collection<GameData> gameList;
 
     public Client(String serverUrl){
@@ -25,6 +26,7 @@ public class Client {
         server = new ServerFacade(serverUrl);
         gameID = 0;
         gameList = null;
+        inGame = false;
     }
 
     public void run() {
@@ -107,6 +109,7 @@ public class Client {
                     }
                     server.joinGame(authToken, color,gameID);
                     gameList = server.listGames(authToken);
+                    inGame = true;
                     showGame(color, gameID);
                 }
                 case "observe" -> {
@@ -114,6 +117,7 @@ public class Client {
                         throw new ResponseException("Error: Bad input on Observe!");
                     }
                     showGame(WHITE,Integer.parseInt(params[0]));
+                    inGame = true;
                 }
                 case "logout" -> {
                     if(!isLoggedIn()){
@@ -122,9 +126,11 @@ public class Client {
                     gameID = 0;
                     server.logoutUser(authToken);
                     authToken = null;
+                    inGame = false;
                 }
                 case "quit", "q" -> {
                     authToken = null;
+                    inGame = false;
                     return "quit";
                 }
                 case "help", "h" -> {
@@ -136,12 +142,46 @@ public class Client {
                     server.clear();
                 }
                 default -> {
+                    if(inGame){
+                        return inGameInput(cmd, params);
+                    }
                     return "bad input try these:\n" + help();
                 }
             }
             return "";
         } catch (ResponseException ex) {
             return ex.toString();
+        }
+    }
+
+    private String inGameInput(String cmd, String[] params) throws ResponseException{
+        switch (cmd) {
+            case "redraw" -> {
+                return "redraw";
+            }
+            case "move" -> {
+                if((params.length < 2) || (params.length > 3)){
+                    throw new ResponseException("Error: Bad input on move");
+                }
+                return "move";
+            }
+            case "highlight" -> {
+                if(params.length != 1){
+                    throw new ResponseException("Error: Bad input on highlight");
+                }
+                return "highlight";
+            }
+            case "leave" -> {
+                inGame = false;
+                gameID = 0;
+                return "leave";
+            }
+            case "resign" ->{
+                return "resign";
+            }
+            default -> {
+                return "bad input try these:\n" + help();
+            }
         }
     }
 
@@ -189,6 +229,18 @@ public class Client {
                     
                     Type "login <username> <password>" to login
                     register <username> <password> <email> to register, "help" for help and "quit" to quit
+                    """;
+        }
+        if(inGame){
+            return """
+                    redraw - Redraw Chess Board
+                    move - <start position> <end position> <promotion piece> ex/ c2 c4 (leave promotion blank if not promoting)
+                    highlight - <start position> - highlight legal moves
+                    leave - leave game
+                    resign - resign game
+                    help - show this again
+                    
+                    You Understand
                     """;
         }
         return """
