@@ -3,6 +3,7 @@ package server;
 import dataaccess.*;
 import handler.Handler;
 import io.javalin.*;
+import websocket.WebSocketHandler;
 
 public class Server {
 
@@ -27,6 +28,7 @@ public class Server {
         }
         //create Handler
         Handler handler = new Handler(userDAO, authDAO, gameDAO);
+        WebSocketHandler webSocketHandler = new WebSocketHandler();
 
         //userService Methods
         javalin.post("/user", handler::registerHandler);
@@ -39,9 +41,11 @@ public class Server {
         javalin.get("/game",handler::listGamesHandler);
         javalin.put("/game",handler::joinGameHandler);
 
-        //javalin.exception(AlreadyTakenException.class, handler::alreadyTakenExceptionHandler);
-
-
+        javalin.ws("/ws", ws -> {
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
+        });
 
     }
 
