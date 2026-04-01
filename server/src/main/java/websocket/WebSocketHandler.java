@@ -11,15 +11,20 @@ import io.javalin.websocket.WsMessageHandler;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
+
+import ResponseException;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import static javax.management.remote.JMXConnectorFactory.connect;
+
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
-    //private final ConnectionManager connections = new ConnectionManager();
-    private HashMap<Integer, List<String>> connections;
+    private final ConnectionManager connections = new ConnectionManager();
+    //private HashMap<Integer, List<String>> connections;
 
     @Override
     public void handleConnect(WsConnectContext ctx) {
@@ -32,16 +37,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void enter(String visitorName, Session session) throws IOException {
+    private void loadGame(String visitorName, Session session) throws IOException {
         connections.add(session);
         var message = String.format("%s is in the shop", visitorName);
-        var notification = new Notification(Notification.Type.ARRIVAL, message);
+        var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
         connections.broadcast(session, notification);
     }
 
     private void exit(String visitorName, Session session) throws IOException {
         var message = String.format("%s left the shop", visitorName);
-        var notification = new Notification(Notification.Type.DEPARTURE, message);
+        var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
         connections.broadcast(session, notification);
         connections.remove(session);
     }
@@ -49,11 +54,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void makeNoise(String petName, String sound) throws ResponseException {
         try {
             var message = String.format("%s says %s", petName, sound);
-            var notification = new Notification(Notification.Type.NOISE, message);
+            var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
             connections.broadcast(null, notification);
         } catch (Exception ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
+    }
+
+    public void makeMove(Session session, String username){
+
     }
 
     public void handleMessage(@NotNull WsMessageContext wsMessageContext) throws Exception {
@@ -61,10 +70,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         Session session = wsMessageContext.session;
 
         try {
-            UserGameCommand command = Serializer.fromJson(
+            UserGameCommand command = new Gson().fromJson(
                     wsMessageContext.message(), UserGameCommand.class);
             gameId = command.getGameID();
-            String username = command.getUsername(command.getAuthString());
+            String username = command.getUsername(command.getAuthToken());
             saveSession(gameId, session);
 
             switch (command.getCommandType()) {

@@ -55,6 +55,8 @@ public class UserGameCommand {
 
     public ChessMove getMove(){return  move;}
 
+    public String getUsername(String authToken){return "";}
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
