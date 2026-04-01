@@ -59,6 +59,13 @@ public class UserService {
         authDAO.deleteAuth(logoutRequest.authToken());
     }
 
+    public String getUsernameFromAuthToken(String authToken) throws DataAccessException{
+        if(authToken == null){
+            throw new DataAccessException("Error: authToken null");
+        }
+        return authDAO.getAuthData(authToken).username();
+    }
+
     public String getAuthToken(String username){
         return authDAO.findAuthTokenFromUsername(username);
     }
