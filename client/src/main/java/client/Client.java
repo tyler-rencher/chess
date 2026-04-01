@@ -2,6 +2,7 @@ package client;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import exception.ResponseException;
 import model.GameData;
 import ui.DrawChessBoard;
 

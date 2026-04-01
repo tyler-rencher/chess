@@ -2,6 +2,7 @@ package client;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import exception.ResponseException;
 import model.GameData;
 import model.requests.*;
 import model.results.CreateGameResult;

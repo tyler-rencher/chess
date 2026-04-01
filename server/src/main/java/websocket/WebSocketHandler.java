@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
-import ResponseException;
+import exception.ResponseException;
 
 import java.io.IOException;
 import java.util.HashMap;

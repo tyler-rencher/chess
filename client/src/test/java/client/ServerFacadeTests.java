@@ -1,21 +1,14 @@
 package client;
 
 import chess.ChessGame;
-import dataaccess.DataAccessException;
+import exception.ResponseException;
 import model.GameData;
-import model.requests.*;
-import model.results.CreateGameResult;
-import model.results.ListGamesResult;
-import model.results.LoginResult;
-import model.results.RegisterResult;
 import org.junit.jupiter.api.*;
 import server.Server;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 
-import static java.sql.Types.NULL;
 import static org.junit.jupiter.api.Assertions.*;
 
 
