@@ -24,10 +24,10 @@ public class Client {
     private boolean inGame;
     private Collection<GameData> gameList;
 
-    public Client(String serverUrl){
+    public Client(String serverUrl) throws ResponseException{
         authToken = null;
         server = new ServerFacade(serverUrl);
-        ws = new WebSocketFacade(serverUrl, new ServerMessage(ServerMessage.ServerMessageType.ERROR));
+        ws = new WebSocketFacade(serverUrl);
         gameID = 0;
         gameList = null;
         inGame = false;
@@ -112,6 +112,7 @@ public class Client {
                         throw new ResponseException("Error: not an integer on game number");
                     }
                     server.joinGame(authToken, color,gameID);
+                    ws.connect(authToken,gameID);
                     gameList = server.listGames(authToken);
                     inGame = true;
                     showGame(color, gameID);
