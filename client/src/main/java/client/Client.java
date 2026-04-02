@@ -5,6 +5,7 @@ import chess.ChessGame;
 import exception.ResponseException;
 import model.GameData;
 import ui.DrawChessBoard;
+import websocket.messages.ServerMessage;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,6 +18,7 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_WHITE;
 
 public class Client {
     private final ServerFacade server;
+    private final WebSocketFacade ws;
     private String authToken;
     private int gameID;
     private boolean inGame;
@@ -25,6 +27,7 @@ public class Client {
     public Client(String serverUrl){
         authToken = null;
         server = new ServerFacade(serverUrl);
+        ws = new WebSocketFacade(serverUrl, new ServerMessage());
         gameID = 0;
         gameList = null;
         inGame = false;
