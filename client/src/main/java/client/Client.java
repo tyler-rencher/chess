@@ -27,7 +27,7 @@ public class Client {
     public Client(String serverUrl){
         authToken = null;
         server = new ServerFacade(serverUrl);
-        ws = new WebSocketFacade(serverUrl, new ServerMessage());
+        ws = new WebSocketFacade(serverUrl, new ServerMessage(ServerMessage.ServerMessageType.ERROR));
         gameID = 0;
         gameList = null;
         inGame = false;
