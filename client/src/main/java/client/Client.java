@@ -199,6 +199,9 @@ public class Client {
         //Might need to fix the integer or char thing
         ChessPosition startMove = new ChessPosition(start.charAt(1),extractColumn(start));
         ChessPosition endMove = new ChessPosition(end.charAt(1),extractColumn(end));
+        if(promotion == null){
+            return new ChessMove(startMove,endMove, null);
+        }
         ChessPiece.PieceType pieceType = extractPieceType(promotion.toLowerCase());
         return new ChessMove(startMove,endMove, pieceType);
     }
