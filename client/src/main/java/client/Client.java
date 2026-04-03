@@ -1,7 +1,6 @@
 package client;
 
-import chess.ChessBoard;
-import chess.ChessGame;
+import chess.*;
 import exception.ResponseException;
 import model.GameData;
 import ui.DrawChessBoard;
@@ -168,6 +167,9 @@ public class Client {
                 if((params.length < 2) || (params.length > 3)){
                     throw new ResponseException("Error: Bad input on move");
                 }
+                String promotionPiece = params.length == 3 ? params[2] : null;
+                ChessMove move = extractMove(params[0], params[1], promotionPiece);
+                ws.move(authToken,gameID, move);
                 return "move";
             }
             case "highlight" -> {
@@ -188,6 +190,37 @@ public class Client {
                 return "bad input try these:\n" + help();
             }
         }
+    }
+
+    private ChessMove extractMove(String start, String end, String promotion) throws ResponseException{
+        if((start.length() != 2) || (end.length() != 2)){
+            throw new ResponseException("Error: invalid move");
+        }
+        //Might need to fix the integer or char thing
+        ChessPosition startMove = new ChessPosition(start.charAt(1),extractColumn(start));
+        ChessPosition endMove = new ChessPosition(end.charAt(1),extractColumn(end));
+        ChessPiece.PieceType pieceType = extractPieceType(promotion.toLowerCase());
+        return new ChessMove(startMove,endMove, pieceType);
+    }
+
+    private int extractColumn(String position) throws ResponseException{
+        char letter = Character.toLowerCase(position.charAt(0));
+        if((letter < 'a') || letter > 'h'){
+            throw new ResponseException("Error: bad move");
+        }
+        return letter - 'a' + 1;
+    }
+
+    private ChessPiece.PieceType extractPieceType(String promotion) throws ResponseException{
+        return switch (promotion) {
+            case "bishop" -> ChessPiece.PieceType.BISHOP;
+            case "knight" -> ChessPiece.PieceType.KNIGHT;
+            case "queen" -> ChessPiece.PieceType.QUEEN;
+            case "rook" -> ChessPiece.PieceType.ROOK;
+            case null -> null;
+            default -> throw new ResponseException("Error: invalid promotion piece");
+        };
+
     }
 
     public String listGames(){
