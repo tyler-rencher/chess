@@ -2,19 +2,21 @@ package websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
-import dataaccess.MySQLAuthDAO;
-import dataaccess.MySQLUserDAO;
-import dataaccess.UnauthorizedException;
+import dataaccess.*;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
 import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import server.Server;
+import service.ClearService;
+import service.GameService;
 import service.UserService;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
@@ -29,14 +31,14 @@ import java.util.List;
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
-    private UserService userService = null;
+    private final UserService userService;
+    private final ClearService clearService;
+    private final GameService gameService;
 
-    public WebSocketHandler() {
-        try {
-            this.userService = new UserService(new MySQLUserDAO(), new MySQLAuthDAO());
-        } catch( Exception e) {
-            System.out.println(e.getMessage());
-        }
+    public WebSocketHandler(UserService userService, ClearService clearService, GameService gameService){
+        this.userService = userService;
+        this.clearService = clearService;
+        this.gameService = gameService;
     }
 
     @Override
@@ -64,17 +66,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.remove(session);
     }
 
-    public void makeNoise(String petName, String sound) throws ResponseException {
+    public void makeMove(Session session, String username, ChessMove move, int gameID){
         try {
-            var message = String.format("%s says %s", petName, sound);
-            var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-            connections.broadcast(null, notification);
-        } catch (Exception ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            ChessGame game = gameService.getChessGame(gameID);
+            game.makeMove(move);
+        } catch(InvalidMoveException e){
+            System.out.println(e.getMessage());
+        } catch(Exception e){
+            System.out.print(e.getMessage());
         }
-    }
-
-    public void makeMove(Session session, String username, ChessMove move){
 
     }
     public void leaveGame(Session session, String username, int gameID){
@@ -109,7 +109,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             switch (command.getCommandType()) {
                 case CONNECT -> connect(session, username, gameId, command.getColor());
-                case MAKE_MOVE -> makeMove(session, username, command.getMove());
+                case MAKE_MOVE -> makeMove(session, username, command.getMove(), gameId);
                 case LEAVE -> leaveGame(session, username, gameId);
                 case RESIGN -> resign(session, username, gameId);
             }

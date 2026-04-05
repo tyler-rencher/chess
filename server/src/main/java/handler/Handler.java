@@ -19,10 +19,10 @@ public class Handler {
     private final UserService userService;
     private final ClearService clearService;
     private final GameService gameService;
-    public Handler(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO){
-        userService = new UserService(userDAO, authDAO);
-        clearService = new ClearService(userDAO,authDAO,gameDAO);
-        gameService = new GameService(authDAO,gameDAO);
+    public Handler(UserService userService, ClearService clearService, GameService gameService){
+        this.userService = userService;
+        this.clearService = clearService;
+        this.gameService = gameService;
     }
 
     private static <T> T getBodyObject(Context context, Class<T> clazz) {

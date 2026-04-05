@@ -3,6 +3,9 @@ package server;
 import dataaccess.*;
 import handler.Handler;
 import io.javalin.*;
+import service.ClearService;
+import service.GameService;
+import service.UserService;
 import websocket.WebSocketHandler;
 
 public class Server {
@@ -26,9 +29,13 @@ public class Server {
         } catch(Throwable ex){
             System.out.printf("Unable to instantiate DAOs: %s%n", ex.getMessage());
         }
+        UserService userService = new UserService(userDAO, authDAO);
+        ClearService clearService = new ClearService(userDAO,authDAO,gameDAO);
+        GameService gameService = new GameService(authDAO,gameDAO);
+
         //create Handler
-        Handler handler = new Handler(userDAO, authDAO, gameDAO);
-        WebSocketHandler webSocketHandler = new WebSocketHandler();
+        Handler handler = new Handler(userService,clearService,gameService);
+        WebSocketHandler webSocketHandler = new WebSocketHandler(userService,clearService,gameService);
 
         //userService Methods
         javalin.post("/user", handler::registerHandler);
