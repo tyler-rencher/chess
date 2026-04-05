@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
@@ -58,6 +59,16 @@ public class WebSocketFacade extends Endpoint {
         try {
             var action = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID,move);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
+        } catch (IOException ex) {
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
+    }
+
+    public String redraw(int gameId, ChessGame.TeamColor color) throws ResponseException {
+        try {
+            //FIXME add functionality to get the game and display me!!!
+            //I don't actually need this. I can just have the server tell me when it Loads a Game and it can send the game to me
+            //when it loads a game I can just store that on the client and display that
         } catch (IOException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }

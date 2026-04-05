@@ -22,6 +22,7 @@ public class Client {
     private int gameID;
     private boolean inGame;
     private Collection<GameData> gameList;
+    private ChessGame.TeamColor teamColor;
 
     public Client(String serverUrl) throws ResponseException{
         authToken = null;
@@ -30,6 +31,7 @@ public class Client {
         gameID = 0;
         gameList = null;
         inGame = false;
+        teamColor = null;
     }
 
     public void run() {
@@ -110,6 +112,7 @@ public class Client {
                     } catch(Exception e){
                         throw new ResponseException("Error: not an integer on game number");
                     }
+                    teamColor = color;
                     server.joinGame(authToken, color,gameID);
                     ws.connect(authToken,gameID);
                     gameList = server.listGames(authToken);
@@ -122,6 +125,7 @@ public class Client {
                     }
                     showGame(WHITE,Integer.parseInt(params[0]));
                     inGame = true;
+                    teamColor = WHITE;
                 }
                 case "logout" -> {
                     if(!isLoggedIn()){
@@ -131,10 +135,12 @@ public class Client {
                     server.logoutUser(authToken);
                     authToken = null;
                     inGame = false;
+                    teamColor = null;
                 }
                 case "quit", "q" -> {
                     authToken = null;
                     inGame = false;
+                    teamColor = null;
                     return "quit";
                 }
                 case "help", "h" -> {
@@ -161,7 +167,7 @@ public class Client {
     private String inGameInput(String cmd, String[] params) throws ResponseException{
         switch (cmd) {
             case "redraw" -> {
-                return "redraw";
+                return ws.redraw(gameID,teamColor);
             }
             case "move" -> {
                 if((params.length < 2) || (params.length > 3)){
@@ -181,6 +187,7 @@ public class Client {
             case "leave" -> {
                 inGame = false;
                 gameID = 0;
+                teamColor = null;
                 return "leave";
             }
             case "resign" ->{
