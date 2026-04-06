@@ -19,6 +19,8 @@ import service.ClearService;
 import service.GameService;
 import service.UserService;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorServerMessage;
+import websocket.messages.LoadGameServerMessage;
 import websocket.messages.ServerMessage;
 
 import exception.ResponseException;
@@ -70,8 +72,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             ChessGame game = gameService.getChessGame(gameID);
             game.makeMove(move);
+            connections.broadcast(null,new LoadGameServerMessage(game));
         } catch(InvalidMoveException e){
             System.out.println(e.getMessage());
+            try {
+                connections.broadcastSelf(session, new ErrorServerMessage(e.getMessage()));
+            } catch(Exception exx){
+                System.out.println(exx.getMessage());
+            }
         } catch(Exception e){
             System.out.print(e.getMessage());
         }
