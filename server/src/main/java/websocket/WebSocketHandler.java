@@ -35,12 +35,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private final ConnectionManager connections = new ConnectionManager();
     private final UserService userService;
-    private final ClearService clearService;
     private final GameService gameService;
 
-    public WebSocketHandler(UserService userService, ClearService clearService, GameService gameService){
+    public WebSocketHandler(UserService userService, GameService gameService){
         this.userService = userService;
-        this.clearService = clearService;
         this.gameService = gameService;
     }
 

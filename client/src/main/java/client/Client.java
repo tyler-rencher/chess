@@ -114,7 +114,7 @@ public class Client {
                     }
                     teamColor = color;
                     server.joinGame(authToken, color,gameID);
-                    ws.connect(authToken,gameID);
+                    ws.connect(authToken,gameID, color);
                     gameList = server.listGames(authToken);
                     inGame = true;
                     showGame(color, gameID);
@@ -123,7 +123,7 @@ public class Client {
                     if(params.length != 1){
                         throw new ResponseException("Error: Bad input on Observe!");
                     }
-                    showGame(WHITE,Integer.parseInt(params[0]));
+                    ws.connect(authToken,gameID, null);
                     inGame = true;
                     teamColor = WHITE;
                 }
@@ -167,7 +167,8 @@ public class Client {
     private String inGameInput(String cmd, String[] params) throws ResponseException{
         switch (cmd) {
             case "redraw" -> {
-                return ws.redraw(gameID,teamColor);
+                ws.redraw(teamColor == null ? WHITE : teamColor);
+                return "";
             }
             case "move" -> {
                 if((params.length < 2) || (params.length > 3)){
@@ -176,7 +177,7 @@ public class Client {
                 String promotionPiece = params.length == 3 ? params[2] : null;
                 ChessMove move = extractMove(params[0], params[1], promotionPiece);
                 ws.move(authToken,gameID, move);
-                return "move";
+                return "";
             }
             case "highlight" -> {
                 if(params.length != 1){
@@ -188,10 +189,12 @@ public class Client {
                 inGame = false;
                 gameID = 0;
                 teamColor = null;
-                return "leave";
+                ws.leave(authToken,gameID);
+                return "";
             }
             case "resign" ->{
-                return "resign";
+                ws.resign(authToken,gameID);
+                return "";
             }
             default -> {
                 return "bad input try these:\n" + help();

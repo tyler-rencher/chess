@@ -35,7 +35,7 @@ public class Server {
 
         //create Handler
         Handler handler = new Handler(userService,clearService,gameService);
-        WebSocketHandler webSocketHandler = new WebSocketHandler(userService,clearService,gameService);
+        WebSocketHandler webSocketHandler = new WebSocketHandler(userService,gameService);
 
         //userService Methods
         javalin.post("/user", handler::registerHandler);

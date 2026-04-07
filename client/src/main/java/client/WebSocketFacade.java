@@ -6,17 +6,23 @@ import com.google.gson.Gson;
 import exception.ResponseException;
 
 import jakarta.websocket.*;
+import ui.DrawChessBoard;
 import websocket.commands.UserGameCommand;
+import websocket.messages.LoadGameServerMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static chess.ChessGame.TeamColor.WHITE;
+
 //need to extend Endpoint for websocket to work properly
 public class WebSocketFacade extends Endpoint {
 
     Session session;
+    private ChessGame game = null;
+    private ChessGame.TeamColor color = null;
 
 
     public WebSocketFacade(String url) throws ResponseException {
@@ -32,6 +38,12 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
+                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME){
+                        LoadGameServerMessage loadMessage = new Gson().fromJson(message, LoadGameServerMessage.class);
+                        game = loadMessage.getGame();
+                        DrawChessBoard.drawBoard(game.getBoard(), ((color == WHITE) || (color == null)));
+                    }
                     System.out.println(message);
                 }
             });
@@ -46,10 +58,12 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void connect(String authToken, int gameID) throws ResponseException {
+    public ChessGame connect(String authToken, int gameID, ChessGame.TeamColor teamColor) throws ResponseException {
         try {
-            var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            color = teamColor;
+            var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID,teamColor);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
+            return game;
         } catch (IOException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
@@ -64,14 +78,27 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public String redraw(int gameId, ChessGame.TeamColor color) throws ResponseException {
+    public void leave(String authToken, int gameID) throws ResponseException {
         try {
-            //FIXME add functionality to get the game and display me!!!
-            //I don't actually need this. I can just have the server tell me when it Loads a Game and it can send the game to me
-            //when it loads a game I can just store that on the client and display that
+            var action = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
     }
+
+    public void resign(String authToken, int gameID) throws ResponseException {
+        try {
+            var action = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+        } catch (IOException ex) {
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
+    }
+
+    public void redraw(ChessGame.TeamColor teamColor){
+        DrawChessBoard.drawBoard(game.getBoard(),teamColor == WHITE);
+    }
+
 
 }
