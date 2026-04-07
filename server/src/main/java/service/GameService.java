@@ -101,6 +101,9 @@ public class GameService {
         GameData newData = new GameData(gameId,newWhite,newBlack, oldData.gameName(),oldData.game());
         gameDAO.updateGame(newData);
     }
+    public GameData getGameData(int gameId) throws DataAccessException{
+        return gameDAO.getGame(gameId);
+    }
 
     private boolean isNull(String item){
         return (item == null) || (item.isEmpty());

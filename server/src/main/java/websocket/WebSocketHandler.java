@@ -30,6 +30,7 @@ import javax.management.Notification;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
@@ -64,6 +65,18 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void makeMove(Session session, String username, ChessMove move, int gameID){
         try {
             ChessGame game = gameService.getChessGame(gameID);
+            GameData gameData = gameService.getGameData(gameID);
+            if(game.getTeamTurn() == ChessGame.TeamColor.WHITE){
+                if(!Objects.equals(username, gameData.whiteUsername())){
+                    connections.broadcastSelf(session, new ErrorServerMessage("Error: Not your turn!"));
+                    return;
+                }
+            } else if(game.getTeamTurn() == ChessGame.TeamColor.BLACK){
+                if(!Objects.equals(username, gameData.blackUsername())){
+                    connections.broadcastSelf(session, new ErrorServerMessage("Error: Not your turn!"));
+                    return;
+                }
+            }
             if(!game.getGameOver()){
                 game.makeMove(move);
                 gameService.updateGame(game, gameID);
