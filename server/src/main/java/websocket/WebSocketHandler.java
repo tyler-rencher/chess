@@ -66,8 +66,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void makeMove(Session session, String username, ChessMove move, int gameID){
         try {
             ChessGame game = gameService.getChessGame(gameID);
-            game.makeMove(move);
+            if(!game.getGameOver()){
+                game.makeMove(move);
+                gameService.updateGame(game, gameID);
+            }
+            //I think I might need to update the game in the server db
             connections.broadcast(null,new LoadGameServerMessage(game));
+            var message = String.format("%s made move %s", username, move); //FIXME This might not work as a ChessMove
+            connections.broadcast(session,new NotificationServerMessage(message));
+            checkGameStatus(game);
         } catch(InvalidMoveException e){
             System.out.println(e.getMessage());
             try {
@@ -80,11 +87,46 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
     }
-    public void leaveGame(Session session, String username, int gameID){
 
+    private void checkGameStatus(ChessGame game){
+        String message = null;
+        if(game.isInCheckmate(game.getTeamTurn())){
+            message = String.format("%s is in checkmate", game.getTeamTurn());
+
+        } else if(game.isInStalemate(game.getTeamTurn())){
+            message = "Stalemate has occurred";
+        } else if(game.isInCheck(game.getTeamTurn())){
+            message = String.format("%s is in check!", game.getTeamTurn());
+        }
+
+        if(message != null){
+            try {
+                connections.broadcast(null, new NotificationServerMessage(message));
+            } catch(Exception e){
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+    public void leaveGame(Session session, String username, int gameID){
+        try {
+            connections.remove(session);
+            gameService.removeUserFromGame(gameID, username);
+            var message = String.format("%s Left the Game", username);
+            connections.broadcast(null,new NotificationServerMessage(message));
+        } catch(Exception e){
+            System.out.print(e.getMessage());
+        }
     }
     public void resign(Session session, String username, int gameID){
-
+        try {
+            ChessGame game = gameService.getChessGame(gameID);
+            game.setGameOver();
+            gameService.updateGame(game, gameID);
+            var message = String.format("%s Resigned", username);
+            connections.broadcast(null,new NotificationServerMessage(message));
+        } catch(Exception e){
+            System.out.print(e.getMessage());
+        }
     }
     public void connect(Session session, String username, int gameID, ChessGame.TeamColor color){
         String colorString;
@@ -95,10 +137,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } else{
             colorString = "observer";
         }
+
         var message = String.format("%s joined the game as %s", username, colorString);
-        connections.add(session);
+
         try {
+            ChessGame game = gameService.getChessGame(gameID);
+            connections.add(session);
             connections.broadcast(session, new NotificationServerMessage(message));
+            connections.broadcastSelf(session,new LoadGameServerMessage(game));
         } catch(Exception e){
             System.out.println(e.getMessage());
         }

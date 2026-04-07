@@ -13,10 +13,12 @@ import java.util.Objects;
 public class ChessGame {
     private ChessBoard board;
     private TeamColor teamColor;
+    private boolean gameOver;
     public ChessGame() {
         this.board = new ChessBoard();
         board.resetBoard();
         teamColor = TeamColor.WHITE;
+        gameOver = false;
     }
 
     /**
@@ -290,6 +292,13 @@ public class ChessGame {
             endPositions.add(move.getEndPosition());
         }
         return endPositions;
+    }
+
+    public void setGameOver(){
+        gameOver = true;
+    }
+    public boolean getGameOver(){
+        return gameOver;
     }
 
     @Override

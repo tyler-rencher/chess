@@ -10,6 +10,8 @@ import model.requests.ListGamesRequest;
 import model.results.CreateGameResult;
 import model.results.ListGamesResult;
 
+import java.util.Objects;
+
 public class GameService {
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
@@ -79,6 +81,25 @@ public class GameService {
     public ChessGame getChessGame(int gameID) throws DataAccessException {
         GameData game = gameDAO.getGame(gameID);
         return game.game();
+    }
+
+    public void updateGame(ChessGame game, int gameId) throws DataAccessException{
+        GameData oldData = gameDAO.getGame(gameId);
+        GameData newData = new GameData(gameId,oldData.whiteUsername(),oldData.blackUsername(),oldData.gameName(),game);
+        gameDAO.updateGame(newData);
+    }
+    public void removeUserFromGame(int gameId, String username) throws DataAccessException{
+        GameData oldData = gameDAO.getGame(gameId);
+        String newWhite = oldData.whiteUsername();
+        String newBlack = oldData.blackUsername();
+        if(Objects.equals(newBlack, username)){
+            newBlack = null;
+        }
+        if(Objects.equals(newWhite, username)){
+            newWhite = null;
+        }
+        GameData newData = new GameData(gameId,newWhite,newBlack, oldData.gameName(),oldData.game());
+        gameDAO.updateGame(newData);
     }
 
     private boolean isNull(String item){
