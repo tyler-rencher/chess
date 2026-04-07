@@ -21,6 +21,7 @@ import service.UserService;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorServerMessage;
 import websocket.messages.LoadGameServerMessage;
+import websocket.messages.NotificationServerMessage;
 import websocket.messages.ServerMessage;
 
 import exception.ResponseException;
@@ -54,12 +55,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void loadGame(String visitorName, Session session) throws IOException {
-        connections.add(session);
-        var message = String.format("%s is in the shop", visitorName);
-        var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-        connections.broadcast(session, notification);
-    }
 
     private void exit(String visitorName, Session session) throws IOException {
         var message = String.format("%s left the shop", visitorName);
@@ -92,6 +87,22 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
     public void connect(Session session, String username, int gameID, ChessGame.TeamColor color){
+        String colorString;
+        if(color == ChessGame.TeamColor.WHITE){
+            colorString = "white";
+        } else if(color == ChessGame.TeamColor.BLACK){
+            colorString = "black";
+        } else{
+            colorString = "observer";
+        }
+        var message = String.format("%s joined the game as %s", username, colorString);
+        connections.add(session);
+        try {
+            connections.broadcast(session, new NotificationServerMessage(message));
+        } catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+
 
     }
 
