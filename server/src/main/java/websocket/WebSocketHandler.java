@@ -80,6 +80,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             if(!game.getGameOver()){
                 game.makeMove(move);
                 gameService.updateGame(game, gameID);
+            } else{
+                connections.broadcastSelf(session, new NotificationServerMessage("Game is Over"));
             }
             //I think I might need to update the game in the server db
             connections.broadcast(null,new LoadGameServerMessage(game));
@@ -96,7 +98,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } catch(Exception e){
             System.out.print(e.getMessage());
             try {
-                connections.broadcastSelf(session, new ErrorServerMessage(e.getMessage()));
+                connections.broadcastSelf(session, new ErrorServerMessage(e.toString()));
             } catch(Exception exx){
                 System.out.println(exx.getMessage());
             }

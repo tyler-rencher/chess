@@ -17,6 +17,8 @@ import websocket.messages.ServerMessage;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.HashSet;
 
 import static chess.ChessGame.TeamColor.WHITE;
 
@@ -109,6 +111,8 @@ public class WebSocketFacade extends Endpoint {
     }
 
     public void highlight(ChessGame.TeamColor teamColor, ChessPosition position){
+        Collection<ChessMove> moveSet = game.validMoves(position);
+        DrawChessBoard.highLightBoard(game.getBoard(), teamColor == WHITE, moveSet);
 
     }
 
