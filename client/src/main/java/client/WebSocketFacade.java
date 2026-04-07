@@ -2,13 +2,16 @@ package client;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import exception.ResponseException;
 
 import jakarta.websocket.*;
 import ui.DrawChessBoard;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorServerMessage;
 import websocket.messages.LoadGameServerMessage;
+import websocket.messages.NotificationServerMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -38,13 +41,18 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME){
+                    if(message.contains("LOAD_GAME")){
                         LoadGameServerMessage loadMessage = new Gson().fromJson(message, LoadGameServerMessage.class);
                         game = loadMessage.getGame();
                         DrawChessBoard.drawBoard(game.getBoard(), ((color == WHITE) || (color == null)));
+                    } else if(message.contains("NOTIFICATION")){
+                        NotificationServerMessage notification = new Gson().fromJson(message, NotificationServerMessage.class);
+                        System.out.println(notification.getMessage());
+                    } else if(message.contains("ERROR")){
+                        ErrorServerMessage notification = new Gson().fromJson(message, ErrorServerMessage.class);
+                        System.out.println(notification.getMessage());
                     }
-                    System.out.println(message);
+                    //System.out.println(message);
                 }
             });
 
@@ -98,6 +106,10 @@ public class WebSocketFacade extends Endpoint {
 
     public void redraw(ChessGame.TeamColor teamColor){
         DrawChessBoard.drawBoard(game.getBoard(),teamColor == WHITE);
+    }
+
+    public void highlight(ChessGame.TeamColor teamColor, ChessPosition position){
+
     }
 
 

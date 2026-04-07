@@ -82,6 +82,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
         } catch(Exception e){
             System.out.print(e.getMessage());
+            try {
+                connections.broadcastSelf(session, new ErrorServerMessage(e.getMessage()));
+            } catch(Exception exx){
+                System.out.println(exx.getMessage());
+            }
         }
 
     }

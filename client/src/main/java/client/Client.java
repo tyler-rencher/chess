@@ -117,7 +117,7 @@ public class Client {
                     ws.connect(authToken,gameID, color);
                     gameList = server.listGames(authToken);
                     inGame = true;
-                    showGame(color, gameID);
+                    //showGame(color, gameID);
                 }
                 case "observe" -> {
                     if(params.length != 1){
@@ -183,6 +183,9 @@ public class Client {
                 if(params.length != 1){
                     throw new ResponseException("Error: Bad input on highlight");
                 }
+                ChessPosition queryPosition = new ChessPosition(params[0].charAt(1),extractColumn(params[0]));
+                ws.highlight(teamColor == null ? WHITE : teamColor, queryPosition);
+
                 return "highlight";
             }
             case "leave" -> {
@@ -207,8 +210,8 @@ public class Client {
             throw new ResponseException("Error: invalid move");
         }
         //Might need to fix the integer or char thing
-        ChessPosition startMove = new ChessPosition(start.charAt(1),extractColumn(start));
-        ChessPosition endMove = new ChessPosition(end.charAt(1),extractColumn(end));
+        ChessPosition startMove = new ChessPosition(extractRow(start),extractColumn(start));
+        ChessPosition endMove = new ChessPosition(extractRow(end),extractColumn(end));
         if(promotion == null){
             return new ChessMove(startMove,endMove, null);
         }
@@ -216,12 +219,22 @@ public class Client {
         return new ChessMove(startMove,endMove, pieceType);
     }
 
+    private int extractRow(String position) throws ResponseException{
+        char letter = (position.charAt(1));
+        if((letter < '1') || letter > '8'){
+            throw new ResponseException("Error: bad move");
+        }
+        int returnVal = letter - '1' + 1;
+        return returnVal;
+    }
+
     private int extractColumn(String position) throws ResponseException{
         char letter = Character.toLowerCase(position.charAt(0));
         if((letter < 'a') || letter > 'h'){
             throw new ResponseException("Error: bad move");
         }
-        return letter - 'a' + 1;
+        int returnVal = letter - 'a' + 1;
+        return returnVal;
     }
 
     private ChessPiece.PieceType extractPieceType(String promotion) throws ResponseException{
