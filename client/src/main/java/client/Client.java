@@ -123,6 +123,11 @@ public class Client {
                     if(params.length != 1){
                         throw new ResponseException("Error: Bad input on Observe!");
                     }
+                    try{
+                        gameID = Integer.parseInt(params[0]);
+                    } catch(Exception e){
+                        throw new ResponseException("Error: not an integer on game number");
+                    }
                     ws.connect(authToken,gameID, null);
                     inGame = true;
                     teamColor = WHITE;
@@ -186,13 +191,13 @@ public class Client {
                 ChessPosition queryPosition = new ChessPosition(extractRow(params[0]),extractColumn(params[0]));
                 ws.highlight(teamColor == null ? WHITE : teamColor, queryPosition);
 
-                return "highlight";
+                return "";
             }
             case "leave" -> {
+                ws.leave(authToken,gameID);
                 inGame = false;
                 gameID = 0;
                 teamColor = null;
-                ws.leave(authToken,gameID);
                 return "";
             }
             case "resign" ->{

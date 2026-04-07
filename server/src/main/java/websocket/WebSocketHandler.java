@@ -55,13 +55,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
 
-    private void exit(String visitorName, Session session) throws IOException {
-        var message = String.format("%s left the shop", visitorName);
-        var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-        connections.broadcast(session, notification);
-        connections.remove(session);
-    }
-
     public void makeMove(Session session, String username, ChessMove move, int gameID){
         try {
             ChessGame game = gameService.getChessGame(gameID);
@@ -191,7 +184,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             saveSession(gameId, session);
 
             switch (command.getCommandType()) {
-                case CONNECT -> connect(session, username, gameId, command.getColor());
+                case CONNECT -> connect(session, username, gameId, command.getColor() == null ? null: command.getColor());
                 case MAKE_MOVE -> makeMove(session, username, command.getMove(), gameId);
                 case LEAVE -> leaveGame(session, username, gameId);
                 case RESIGN -> resign(session, username, gameId);
