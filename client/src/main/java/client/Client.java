@@ -183,7 +183,7 @@ public class Client {
                 if(params.length != 1){
                     throw new ResponseException("Error: Bad input on highlight");
                 }
-                ChessPosition queryPosition = new ChessPosition(params[0].charAt(1),extractColumn(params[0]));
+                ChessPosition queryPosition = new ChessPosition(extractRow(params[0]),extractColumn(params[0]));
                 ws.highlight(teamColor == null ? WHITE : teamColor, queryPosition);
 
                 return "highlight";
