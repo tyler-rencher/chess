@@ -21,6 +21,7 @@ public class Client {
     private boolean inGame;
     private List<GameData> gameList;
     private ChessGame.TeamColor teamColor;
+    private boolean resignStart;
 
     public Client(String serverUrl) throws ResponseException{
         authToken = null;
@@ -30,6 +31,7 @@ public class Client {
         gameList = null;
         inGame = false;
         teamColor = null;
+        resignStart = false;
     }
 
     public void run() {
@@ -198,13 +200,27 @@ public class Client {
                 return "";
             }
             case "resign" ->{
+                resignStart = true;
+                return "Are you sure you want to Resign?????\n Y or N";
+            } case "y" ->{
+                if(!resignStart){return "NOT VALID INPUT";}
+                resignStart = false;
                 ws.resign(authToken,gameID);
+                return "";
+            } case "n" ->{
+                if(!resignStart){return "NOT VALID INPUT";}
+                resignStart = false;
                 return "";
             }
             default -> {
                 return "bad input try these:\n" + help();
             }
         }
+    }
+
+    public void confirmResign(){
+        System.out.println("Are you sure you want to Resign?????\n Y or N");
+
     }
 
     private ChessMove extractMove(String start, String end, String promotion) throws ResponseException{

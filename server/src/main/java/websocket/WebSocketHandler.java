@@ -79,15 +79,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 connections.broadcastSelf(gameID,session, new ErrorServerMessage("Game is Over"));
                 return;
             }
+            GameData gameData2 = gameService.getGameData(gameID);
             //I think I might need to update the game in the server db
             connections.broadcast(gameID,null,new LoadGameServerMessage(game));
             var message = String.format("%s made move %s", username, moveSerializer(move)); // This might not work as a ChessMove
             connections.broadcast(gameID,session,new NotificationServerMessage(message));
-            checkGameStatus(game, gameID);
+            checkGameStatus(gameData2, gameID);
         } catch(InvalidMoveException e){
             System.out.println(e.getMessage());
             try {
-                connections.broadcastSelf(gameID,session, new ErrorServerMessage(e.getMessage()));
+                connections.broadcastSelf(gameID,session, new ErrorServerMessage("Error: Invalid Move"));
             } catch(Exception exx){
                 System.out.println(exx.getMessage());
             }
@@ -116,10 +117,19 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         return letter + String.valueOf(position.getRow());
     }
 
-    private void checkGameStatus(ChessGame game, int gameId){
+    private void checkGameStatus(GameData gameData, int gameId){
         String message = null;
+        String username;
+        ChessGame game = gameData.game();
+        if(game.getTeamTurn() == ChessGame.TeamColor.WHITE){
+            username = gameData.whiteUsername();
+        } else if(game.getTeamTurn() == ChessGame.TeamColor.BLACK){
+            username = gameData.blackUsername();
+        } else{
+            username = null;
+        }
         if(game.isInCheckmate(game.getTeamTurn())){
-            message = String.format("%s is in checkmate", game.getTeamTurn());
+            message = String.format("%s is in checkmate", username);
             game.setGameOver();
             try{
                 gameService.updateGame(game, gameId);
@@ -136,7 +146,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 System.out.println("Error on update game");
             }
         } else if(game.isInCheck(game.getTeamTurn())){
-            message = String.format("%s is in check!", game.getTeamTurn());
+            message = String.format("%s is in check!", username);
         }
 
         if(message != null){
