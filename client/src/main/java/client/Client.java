@@ -64,9 +64,7 @@ public class Client {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             switch (cmd) {
                 case "register", "r" -> {
-                    if(isLoggedIn()){
-                        return "Already Logged In";
-                    }
+                    if(isLoggedIn()){return "Already Logged In";}
                     if(params.length != 3){
                         throw new ResponseException("Error: Bad input on Register!");
                     }
@@ -84,25 +82,19 @@ public class Client {
                     return "Logged In!\n" + help();
                 }
                 case "list" -> {
-                    if(!isLoggedIn()){
-                        return "Not Logged In";
-                    }
+                    if(!isLoggedIn()){return "Not Logged In";}
                     gameList = server.listGames(authToken);
                     return listGames();
                 }
                 case "create" -> {
-                    if(!isLoggedIn()){
-                        return "Not Logged In";
-                    }
+                    if(!isLoggedIn()){return "Not Logged In";}
                     if(params.length != 1){
                         throw new ResponseException("Error: Bad input on Create!");
                     }
                     gameID = server.createGame(authToken,params[0]);
                 }
                 case "join" -> {
-                    if(!isLoggedIn()){
-                        return "Not Logged In";
-                    }
+                    if(!isLoggedIn()){return "Not Logged In";}
                     if(params.length != 2){
                         throw new ResponseException("Error: Bad input on join!");
                     }
