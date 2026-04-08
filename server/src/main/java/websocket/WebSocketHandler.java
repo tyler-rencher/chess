@@ -27,6 +27,7 @@ import websocket.messages.ServerMessage;
 import exception.ResponseException;
 
 import javax.management.Notification;
+import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -74,7 +75,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 game.makeMove(move);
                 gameService.updateGame(game, gameID);
             } else{
-                connections.broadcastSelf(session, new NotificationServerMessage("Game is Over"));
+                connections.broadcastSelf(session, new ErrorServerMessage("Game is Over"));
+                return;
             }
             //I think I might need to update the game in the server db
             connections.broadcast(null,new LoadGameServerMessage(game));
@@ -143,6 +145,25 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void resign(Session session, String username, int gameID){
         try {
             ChessGame game = gameService.getChessGame(gameID);
+            GameData gameData = gameService.getGameData(gameID);
+            if(!((Objects.equals(gameData.blackUsername(), username)) ||
+                    (Objects.equals(gameData.whiteUsername(), username)))){
+                try {
+                    connections.broadcastSelf(session, new ErrorServerMessage("Error: Observer can't Resign"));
+                } catch(Exception exx){
+                    System.out.println(exx.getMessage());
+                }
+                return;
+            }
+            if(game.getGameOver()){
+                try {
+                    connections.broadcastSelf(session, new ErrorServerMessage("Error: Resign already occurred OITE!"));
+                } catch(Exception exx){
+                    System.out.println(exx.getMessage());
+                }
+                return;
+            }
+
             game.setGameOver();
             gameService.updateGame(game, gameID);
             var message = String.format("%s Resigned", username);
@@ -151,7 +172,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             System.out.print(e.getMessage());
         }
     }
-    public void connect(Session session, String username, int gameID, ChessGame.TeamColor color){
+    public void connect(Session session, String username, int gameID){
         String colorString;
         connections.add(session);
         if(username == null){
@@ -162,9 +183,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 System.out.println(e.getMessage());
             }
         }
-        if(color == ChessGame.TeamColor.WHITE){
+        GameData gameData;
+        try {
+            gameData = gameService.getGameData(gameID);
+        } catch(Exception e){
+            System.out.println(e.toString());
+            return;
+        }
+
+        if(Objects.equals(gameData.whiteUsername(), username)){
             colorString = "white";
-        } else if(color == ChessGame.TeamColor.BLACK){
+        } else if(Objects.equals(gameData.blackUsername(), username)){
             colorString = "black";
         } else{
             colorString = "observer";
@@ -176,8 +205,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             ChessGame game = gameService.getChessGame(gameID);
 
-            connections.broadcast(session, new NotificationServerMessage(message));
             connections.broadcastSelf(session,new LoadGameServerMessage(game));
+            connections.broadcast(session, new NotificationServerMessage(message));
+
         } catch(Exception e){
             try {
                 connections.broadcastSelf(session, new ErrorServerMessage(e.toString()));
@@ -211,7 +241,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             saveSession(gameId, session);
 
             switch (command.getCommandType()) {
-                case CONNECT -> connect(session, username, gameId, command.getColor() == null ? null: command.getColor());
+                case CONNECT -> connect(session, username, gameId);
                 case MAKE_MOVE -> makeMove(session, username, command.getMove(), gameId);
                 case LEAVE -> leaveGame(session, username, gameId);
                 case RESIGN -> resign(session, username, gameId);

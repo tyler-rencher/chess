@@ -21,14 +21,11 @@ public class UserGameCommand {
 
     private final ChessMove move;
 
-    private final ChessGame.TeamColor color;
-
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
         move = null;
-        color = null;
     }
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID, ChessMove move) {
@@ -36,16 +33,8 @@ public class UserGameCommand {
         this.authToken = authToken;
         this.gameID = gameID;
         this.move = move;
-        color = null;
     }
 
-    public UserGameCommand(CommandType commandType, String authToken, Integer gameID, ChessGame.TeamColor color) {
-        this.commandType = commandType;
-        this.authToken = authToken;
-        this.gameID = gameID;
-        this.move = null;
-        this.color = color;
-    }
 
     public enum CommandType {
         CONNECT,
@@ -67,8 +56,6 @@ public class UserGameCommand {
     }
 
     public ChessMove getMove(){return  move;}
-
-    public ChessGame.TeamColor getColor(){return color;}
 
     @Override
     public boolean equals(Object o) {
