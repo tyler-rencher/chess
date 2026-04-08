@@ -62,12 +62,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             GameData gameData = gameService.getGameData(gameID);
             if(game.getTeamTurn() == ChessGame.TeamColor.WHITE){
                 if(!Objects.equals(username, gameData.whiteUsername())){
-                    connections.broadcastSelf(session, new ErrorServerMessage("Error: Not your turn!"));
+                    connections.broadcastSelf(gameID,session, new ErrorServerMessage("Error: Not your turn!"));
                     return;
                 }
             } else if(game.getTeamTurn() == ChessGame.TeamColor.BLACK){
                 if(!Objects.equals(username, gameData.blackUsername())){
-                    connections.broadcastSelf(session, new ErrorServerMessage("Error: Not your turn!"));
+                    connections.broadcastSelf(gameID,session, new ErrorServerMessage("Error: Not your turn!"));
                     return;
                 }
             }
@@ -75,25 +75,25 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 game.makeMove(move);
                 gameService.updateGame(game, gameID);
             } else{
-                connections.broadcastSelf(session, new ErrorServerMessage("Game is Over"));
+                connections.broadcastSelf(gameID,session, new ErrorServerMessage("Game is Over"));
                 return;
             }
             //I think I might need to update the game in the server db
-            connections.broadcast(null,new LoadGameServerMessage(game));
+            connections.broadcast(gameID,null,new LoadGameServerMessage(game));
             var message = String.format("%s made move %s", username, move); //FIXME This might not work as a ChessMove
-            connections.broadcast(session,new NotificationServerMessage(message));
+            connections.broadcast(gameID,session,new NotificationServerMessage(message));
             checkGameStatus(game, gameID);
         } catch(InvalidMoveException e){
             System.out.println(e.getMessage());
             try {
-                connections.broadcastSelf(session, new ErrorServerMessage(e.getMessage()));
+                connections.broadcastSelf(gameID,session, new ErrorServerMessage(e.getMessage()));
             } catch(Exception exx){
                 System.out.println(exx.getMessage());
             }
         } catch(Exception e){
             System.out.print(e.getMessage());
             try {
-                connections.broadcastSelf(session, new ErrorServerMessage(e.toString()));
+                connections.broadcastSelf(gameID,session, new ErrorServerMessage(e.toString()));
             } catch(Exception exx){
                 System.out.println(exx.getMessage());
             }
@@ -126,7 +126,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         if(message != null){
             try {
-                connections.broadcast(null, new NotificationServerMessage(message));
+                connections.broadcast(gameId, null, new NotificationServerMessage(message));
             } catch(Exception e){
                 System.out.println(e.getMessage());
             }
@@ -134,10 +134,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
     public void leaveGame(Session session, String username, int gameID){
         try {
-            connections.remove(session);
+            connections.remove(gameID, session);
             gameService.removeUserFromGame(gameID, username);
             var message = String.format("%s Left the Game", username);
-            connections.broadcast(null,new NotificationServerMessage(message));
+            connections.broadcast(gameID, null,new NotificationServerMessage(message));
         } catch(Exception e){
             System.out.print(e.getMessage());
         }
@@ -149,7 +149,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             if(!((Objects.equals(gameData.blackUsername(), username)) ||
                     (Objects.equals(gameData.whiteUsername(), username)))){
                 try {
-                    connections.broadcastSelf(session, new ErrorServerMessage("Error: Observer can't Resign"));
+                    connections.broadcastSelf(gameID,session, new ErrorServerMessage("Error: Observer can't Resign"));
                 } catch(Exception exx){
                     System.out.println(exx.getMessage());
                 }
@@ -157,7 +157,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
             if(game.getGameOver()){
                 try {
-                    connections.broadcastSelf(session, new ErrorServerMessage("Error: Resign already occurred OITE!"));
+                    connections.broadcastSelf(gameID,session, new ErrorServerMessage("Error: Resign already occurred OITE!"));
                 } catch(Exception exx){
                     System.out.println(exx.getMessage());
                 }
@@ -167,17 +167,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             game.setGameOver();
             gameService.updateGame(game, gameID);
             var message = String.format("%s Resigned", username);
-            connections.broadcast(null,new NotificationServerMessage(message));
+            connections.broadcast( gameID,null,new NotificationServerMessage(message));
         } catch(Exception e){
             System.out.print(e.getMessage());
         }
     }
     public void connect(Session session, String username, int gameID){
         String colorString;
-        connections.add(session);
+        connections.add(gameID,session);
         if(username == null){
             try{
-                connections.broadcastSelf(session, new ErrorServerMessage("Error: username/authToken null"));
+                connections.broadcastSelf(gameID,session, new ErrorServerMessage("Error: username/authToken null"));
                 return;
             } catch(Exception e){
                 System.out.println(e.getMessage());
@@ -205,12 +205,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             ChessGame game = gameService.getChessGame(gameID);
 
-            connections.broadcastSelf(session,new LoadGameServerMessage(game));
-            connections.broadcast(session, new NotificationServerMessage(message));
+            connections.broadcastSelf(gameID,session,new LoadGameServerMessage(game));
+            connections.broadcast(gameID,session, new NotificationServerMessage(message));
 
         } catch(Exception e){
             try {
-                connections.broadcastSelf(session, new ErrorServerMessage(e.toString()));
+                connections.broadcastSelf(gameID,session, new ErrorServerMessage(e.toString()));
             } catch(Exception exx){
                 System.out.println(exx.getMessage());
             }
@@ -248,7 +248,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            connections.broadcastSelf(session, new ErrorServerMessage(ex.toString()));
+            connections.broadcastSelf(gameId,session, new ErrorServerMessage(ex.toString()));
         }
     }
 
