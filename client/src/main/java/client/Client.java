@@ -6,9 +6,7 @@ import model.GameData;
 import ui.DrawChessBoard;
 import websocket.messages.ServerMessage;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Scanner;
+import java.util.*;
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
@@ -21,7 +19,7 @@ public class Client {
     private String authToken;
     private int gameID;
     private boolean inGame;
-    private Collection<GameData> gameList;
+    private List<GameData> gameList;
     private ChessGame.TeamColor teamColor;
 
     public Client(String serverUrl) throws ResponseException{
@@ -83,7 +81,7 @@ public class Client {
                 }
                 case "list" -> {
                     if(!isLoggedIn()){return "Not Logged In";}
-                    gameList = server.listGames(authToken);
+                    gameList = new ArrayList<>(server.listGames(authToken));
                     return listGames();
                 }
                 case "create" -> {
@@ -107,7 +105,7 @@ public class Client {
                     teamColor = color;
                     server.joinGame(authToken, color,gameID);
                     ws.connect(authToken,gameID, color);
-                    gameList = server.listGames(authToken);
+                    gameList = new ArrayList<>(server.listGames(authToken));
                     inGame = true;
                 }
                 case "observe" -> {
@@ -259,6 +257,7 @@ public class Client {
         if(gameList == null){
             return sb.toString();
         }
+        gameList.sort(Comparator.comparingInt(GameData::gameID));
         int index = 1;
         for(GameData gameData : gameList){
             sb.append(index);
