@@ -3,13 +3,13 @@ package websocket.messages;
 import chess.ChessGame;
 
 public class ErrorServerMessage extends ServerMessage{
-    private final String message;
+    private final String errorMessage;
     public ErrorServerMessage(String message){
         super(ServerMessageType.ERROR);
-        this.message = message;
+        this.errorMessage = message;
     }
 
     public String getMessage(){
-        return message;
+        return errorMessage;
     }
 }

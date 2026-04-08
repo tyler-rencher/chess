@@ -80,6 +80,9 @@ public class GameService {
 
     public ChessGame getChessGame(int gameID) throws DataAccessException {
         GameData game = gameDAO.getGame(gameID);
+        if(game == null){
+            throw new DataAccessException("Error: Game not found. Bad gameID");
+        }
         return game.game();
     }
 

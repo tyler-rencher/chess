@@ -80,7 +80,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.broadcast(null,new LoadGameServerMessage(game));
             var message = String.format("%s made move %s", username, move); //FIXME This might not work as a ChessMove
             connections.broadcast(session,new NotificationServerMessage(message));
-            checkGameStatus(game);
+            checkGameStatus(game, gameID);
         } catch(InvalidMoveException e){
             System.out.println(e.getMessage());
             try {
@@ -99,13 +99,25 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
 
-    private void checkGameStatus(ChessGame game){
+    private void checkGameStatus(ChessGame game, int gameId){
         String message = null;
         if(game.isInCheckmate(game.getTeamTurn())){
             message = String.format("%s is in checkmate", game.getTeamTurn());
+            game.setGameOver();
+            try{
+                gameService.updateGame(game, gameId);
+            } catch(Exception e){
+                System.out.println("Error on update game");
+            }
 
         } else if(game.isInStalemate(game.getTeamTurn())){
             message = "Stalemate has occurred";
+            game.setGameOver();
+            try{
+                gameService.updateGame(game, gameId);
+            } catch(Exception e){
+                System.out.println("Error on update game");
+            }
         } else if(game.isInCheck(game.getTeamTurn())){
             message = String.format("%s is in check!", game.getTeamTurn());
         }
@@ -141,6 +153,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
     public void connect(Session session, String username, int gameID, ChessGame.TeamColor color){
         String colorString;
+        connections.add(session);
+        if(username == null){
+            try{
+                connections.broadcastSelf(session, new ErrorServerMessage("Error: username/authToken null"));
+                return;
+            } catch(Exception e){
+                System.out.println(e.getMessage());
+            }
+        }
         if(color == ChessGame.TeamColor.WHITE){
             colorString = "white";
         } else if(color == ChessGame.TeamColor.BLACK){
@@ -152,11 +173,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         var message = String.format("%s joined the game as %s", username, colorString);
 
         try {
+
             ChessGame game = gameService.getChessGame(gameID);
-            connections.add(session);
+
             connections.broadcast(session, new NotificationServerMessage(message));
             connections.broadcastSelf(session,new LoadGameServerMessage(game));
         } catch(Exception e){
+            try {
+                connections.broadcastSelf(session, new ErrorServerMessage(e.toString()));
+            } catch(Exception exx){
+                System.out.println(exx.getMessage());
+            }
             System.out.println(e.getMessage());
         }
 
@@ -191,7 +218,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            connections.broadcast(session, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION));
+            connections.broadcastSelf(session, new ErrorServerMessage(ex.toString()));
         }
     }
 
