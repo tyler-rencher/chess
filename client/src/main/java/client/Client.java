@@ -117,7 +117,6 @@ public class Client {
                     ws.connect(authToken,gameID, color);
                     gameList = server.listGames(authToken);
                     inGame = true;
-                    //showGame(color, gameID);
                 }
                 case "observe" -> {
                     if(params.length != 1){
@@ -136,16 +135,11 @@ public class Client {
                     if(!isLoggedIn()){
                         return "Not Logged In";
                     }
-                    gameID = 0;
                     server.logoutUser(authToken);
-                    authToken = null;
-                    inGame = false;
-                    teamColor = null;
+                    logoutHelper();
                 }
                 case "quit", "q" -> {
-                    authToken = null;
-                    inGame = false;
-                    teamColor = null;
+                    quitHelper();
                     return "quit";
                 }
                 case "help", "h" -> {
@@ -167,6 +161,19 @@ public class Client {
         } catch (ResponseException ex) {
             return ex.toString();
         }
+    }
+
+    private void logoutHelper(){
+        gameID = 0;
+        authToken = null;
+        inGame = false;
+        teamColor = null;
+    }
+
+    private void quitHelper(){
+        authToken = null;
+        inGame = false;
+        teamColor = null;
     }
 
     private String inGameInput(String cmd, String[] params) throws ResponseException{
@@ -280,12 +287,6 @@ public class Client {
         } else{
             throw new ResponseException("Error: Bad Color Entered");
         }
-    }
-
-    private void showGame(ChessGame.TeamColor color, int gameID){
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        DrawChessBoard.drawBoard(board, color == WHITE);
     }
 
     public String help() {

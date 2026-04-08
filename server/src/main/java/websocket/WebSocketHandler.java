@@ -80,7 +80,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
             //I think I might need to update the game in the server db
             connections.broadcast(gameID,null,new LoadGameServerMessage(game));
-            var message = String.format("%s made move %s", username, move); //FIXME This might not work as a ChessMove
+            var message = String.format("%s made move %s", username, move); // This might not work as a ChessMove
             connections.broadcast(gameID,session,new NotificationServerMessage(message));
             checkGameStatus(game, gameID);
         } catch(InvalidMoveException e){
