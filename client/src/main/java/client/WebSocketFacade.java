@@ -111,6 +111,10 @@ public class WebSocketFacade extends Endpoint {
     }
 
     public void highlight(ChessGame.TeamColor teamColor, ChessPosition position){
+        if(game.getBoard().getPiece(position) == null){
+            DrawChessBoard.drawBoard(game.getBoard(), teamColor == WHITE);
+            return;
+        }
         Collection<ChessMove> moveSet = game.validMoves(position);
         DrawChessBoard.highLightBoard(game.getBoard(), teamColor == WHITE, moveSet, position);
 

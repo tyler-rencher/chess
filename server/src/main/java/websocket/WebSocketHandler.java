@@ -2,6 +2,7 @@ package websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPosition;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.*;
@@ -80,7 +81,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
             //I think I might need to update the game in the server db
             connections.broadcast(gameID,null,new LoadGameServerMessage(game));
-            var message = String.format("%s made move %s", username, move); // This might not work as a ChessMove
+            var message = String.format("%s made move %s", username, moveSerializer(move)); // This might not work as a ChessMove
             connections.broadcast(gameID,session,new NotificationServerMessage(message));
             checkGameStatus(game, gameID);
         } catch(InvalidMoveException e){
@@ -99,6 +100,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
         }
 
+    }
+
+    private String moveSerializer(ChessMove move){
+        String returnString = "";
+        returnString = returnString + positionSerializer(move.getStartPosition()) + " ";
+        returnString = returnString + positionSerializer(move.getEndPosition()) + " ";
+        if(move.getPromotionPiece() != null){
+            returnString = returnString + move.getPromotionPiece();
+        }
+        return returnString;
+    }
+    private String positionSerializer(ChessPosition position){
+        char letter = (char) ('a' + position.getColumn() - 1);
+        return letter + String.valueOf(position.getRow());
     }
 
     private void checkGameStatus(ChessGame game, int gameId){
