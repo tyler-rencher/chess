@@ -229,6 +229,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         return null;
     }
 
+    @Override
     public void handleMessage(@NotNull WsMessageContext wsMessageContext) throws Exception {
         int gameId = -1;
         Session session = wsMessageContext.session;
